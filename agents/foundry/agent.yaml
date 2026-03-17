@@ -1,0 +1,98 @@
+Design a modern AI-powered lab notebook web app UI using Next.js (App Router) and Tailwind CSS.
+
+The application is called "Lab Notebook AI Assistant".
+
+## General Style
+
+* Clean, minimal, and professional (inspired by Notion, Linear, and Vercel dashboard)
+* Light theme with subtle gray tones and accent color (blue or violet)
+* Rounded corners, soft shadows, modern spacing
+* Fully responsive
+
+## Layout Structure
+
+### 1. Sidebar (left)
+
+* Logo: "Lab Notebook AI"
+* Navigation items:
+
+  * Dashboard
+  * Experiments
+  * New Experiment
+  * AI Assistant
+  * Settings
+* Collapsible sidebar
+
+### 2. Top Bar
+
+* Search input ("Search experiments...")
+* User avatar (top right)
+* Optional: quick action button "New Experiment"
+
+### 3. Main Content Area
+
+#### Dashboard View
+
+* Cards with:
+
+  * Total experiments
+  * Active experiments
+  * Failed experiments
+* Recent activity list
+* Quick actions (create experiment, ask AI)
+
+#### Experiments View
+
+* Table or list of experiments:
+
+  * Name
+  * Status (active, completed, failed)
+  * Date
+  * Tags
+* Filters and search
+* Click opens experiment detail
+
+#### Experiment Detail View
+
+* Title + metadata (status, tags, date)
+* Sections:
+
+  * Notes (rich text style)
+  * Results
+  * Attachments
+* Timeline or activity log
+* Button: "Analyze with AI"
+
+#### AI Assistant Panel (important)
+
+* Chat interface on the right side or full page
+* Messages styled like ChatGPT
+* Input box: "Ask about your experiments..."
+* Suggested prompts:
+
+  * "Summarize this experiment"
+  * "Find similar experiments"
+  * "Suggest improvements"
+
+## Components
+
+* Reusable cards
+* Status badges (green, yellow, red)
+* Buttons (primary, secondary)
+* Input fields
+* Modal for creating experiment
+
+## UX details
+
+* Smooth hover effects
+* Loading skeletons
+* Empty states (no experiments yet)
+* Clean typography
+
+## Tech constraints
+
+* Use Tailwind CSS
+* Use modern React (functional components)
+* Use App Router structure
+
+Generate clean, production-ready UI components.

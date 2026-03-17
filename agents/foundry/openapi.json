@@ -1,0 +1,25 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Lab Notebook API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000"
+    }
+  ],
+  "paths": {
+    "/experiments": {
+      "get": {
+        "operationId": "getExperiments",
+        "description": "Get all experiments",
+        "responses": {
+          "200": {
+            "description": "List of experiments"
+          }
+        }
+      }
+    }
+  }
+}
