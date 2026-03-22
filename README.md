@@ -7,24 +7,25 @@
 - [Descripcion general](#descripcion-general)
 - [Caracteristicas](#caracteristicas)
 - [Arquitectura del Sistema](#arquitectura-del-sistema)
-- [Tecnologías usadas](#tecnologías-usadas)
+- [Planteo del problema](#planteo-del-problema)
+<!-- - [Tecnologías usadas](#tecnologías-usadas)
 - [Recursos Azure Desplegados](#recursos-azure-desplegados)
 - [Funcionamiento de la Aplicación](#funcionamiento-de-la-Aplicación)
 - [Estrategia de Testeo](#estrategia-de-Testeo)
 - [Video Final del Proyecto](#video-Final-del-Proyecto)
 - [Guía de Ejecución del Proyecto](#guía-de-ejecución-del-proyecto)
-- [Instalación y Configuración](#recursos-azure-desplegados)
+- [Instalación y Configuración](#recursos-azure-desplegados) -->
 
 
 ## Descripcion general
 
-Sistema de gestión de experimentos científicos con asistencia de IA para acelerar el ciclo de experimentación manteniendo rigor y seguridad.
+Lab Notebook AI (ALMA) es una plataforma web online dedicada al area cientifica, que sirve para asistir a los laboratorios en las activides que permitan gestionar protocolos experimentales sin perder el jucio cientico.
 
-![Vista princial Alma](./img/logo-alma.png)
+![Vista princial](./docs/img/dasboard-alma.jpeg)
 
-_Alma_ es un Agente de IA diseñado como un Cuaderno de Laboratorio Digital (ELN) inteligente que actúa como un grafo de conocimiento persistente para la gestión de experimentos científicos. El sistema permite documentar protocolos, registrar observaciones, almacenar resultados y consultar mediante IA todo el conocimiento generado.
+_Alma_ es un asistente de IA diseñado como un **cuaderno de laboratorio Digital (ELN)** inteligente que actúa como un grafo de conocimiento persistente para la gestión de experimentos científicos. El sistema permite documentar protocolos, registrar observaciones, almacenar resultados y consultar mediante IA todo el conocimiento generado.
 
-![Ejemplo Principal](./img/ejmplo-principal-alma.png)
+![Ejemplo Principal](./docs/img/ejmplo-principal-alma.jpeg)
 
 En este ejemplo podemos observar el flujo completo de interacción entre el científico y el sistema ALMA:
 
@@ -40,58 +41,68 @@ En este ejemplo podemos observar el flujo completo de interacción entre el cien
 
 1. Persistencia con trazabilidad: Al hacer clic en "Registrar", la recomendación queda guardada en el journal junto con su fuente, creando un rastro auditable de cómo se llegó a cada decisión experimental.
 
-
-
 ---
 
 ## Caracteristicas
 
 Este proyecto propociona a los laboratorios las siguiente caracteristicas:
 
-* **Gestion de exprimentos**: Registro de proyectos y experimientos con una estructura jerarquica
-* **Diagrio de laboratorio**: Registro de anotaciones, observaciones y resultado
-* **Almacenamientos de Archivos**: Permite subir y gestionar archivos PDFs, imagenes, CSVs
+* **Gestion de exprimentos y proyectos**: Registro de proyectos y experimientos con una estructura jerarquica
+* **Cuaderno de laboratorio**: Registro de anotaciones, observaciones y resultado, como tambien visulizarlo mediante una interfaz tipo chat interactivo.
+* **Almacenamientos de Archivos**: Permite subir y gestionar archivos PDFs, imagenes, CSVs.
 * **Interacion por voz**: Permite a los cientifico registrar e interacturar con el asitente mediante la voz.
-* **Procesamiento de Documentos**: OCR para imagenes y extraccion de texto de PDFs
-* **Asistente AI**: Chat contextual con capacidad de grounding en documentos del laboratorio
-* **Busqueda Semantica**: RAG sobre base de conocimiento 
+* **Procesamiento de Documentos**: Mediante el uso de OCR para imagenes y extraccion de texto de PDFs
+* **Asistente AI**: Chat contextual con capacidad de grounding en documentos del laboratorio.
+* **Busqueda Semantica**: Mediante la generacion aumenta de recuperacion (RAG), se utiliza la base de conocimiento, previamente almacenada.
+
 ---
 
 ## Arquitectura del Sistema
 
-El proyecto esta compuesto de las siguiente capas y tecnologias.
-
-| **Capa**                   | **Tecnologia**                   | **Descripción** |
-| -------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-| Frotend     | Next.js + Tailwind | SPA con panel lateral de chat y visor de documentos|
-| Backend API | Azure Function (Python) | Orquestador API y lógica de negocio |
-| Base de datos            | Azure SQL (capa gratuita)           | Persistencia relacional de experiementos|
-| Almacenamiento              | Azure Blob Storage  | Repositorio de documentos, imagenes y resultados|
-| Busqueda vectorial | Azure AI Search | RAG sobre documentos cientificos |
-| LLM | GPT-4o-mini | Razonamiento sobre protocolo y resultados |
-| Procesamiento | Azure AI Vision | OCR y extraccion de tablas |
-
----
+El proyecto se desarrolla íntegramente sobre el ecosistema de Microsoft Azure, empleando una arquitectura multicapa que integra servicios gestionados para garantizar escalabilidad y seguridad.
 
 ## Diagrama de la arquitectura
 
 ![Diagrama arquitectura](./docs/img/diagrama-arquitectura-alma.png)
 
----
-
-## Tecnologías usadas
-
-| **Categoria**                     | **Tecnologia** |
-| -------------------------- | -------------------------------- | 
-| Cloud         | Azure (Resource Group, Storage Account, SQL Server)                                                          |
-| Backend        | Azure Functions (Python) |
-| IA/ML | Azure AI Agent Service, Azure AI Search, Azure AI Vision, GPT-4o-mini  |
-| Frontend     | React, Bootstrap (por definir)|
-| DevOps  | Git, Documentación técnica                                                                                              |
+| **Capa**                   | **Tecnologia**                   | **Descripción** |
+| -------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+| Frotend     | Azure Static Web App  | Este servicio permitira mostrar a los usuarios externos la interfaz necesaria para interacturar son el sistema.|
+| Backend API | Azure Web App (Python) | Este capa tiene como objetivo establecer las conexiones mediante Apis entre Azure Foundry, tambien actuar como intermediario con el servicios de Azure Static web App, ademas de establecer la logica del sistema. |
+| Base de datos            | Azure SQL (capa gratuita)           | Este base de datos almacenara, el registro de usuario, proyectos, experimientos y anotaciones.|
+| Almacenamiento              | Azure Blob Storage  | Repositorio de archivos de texto, imagenes y resultados Este servicio permite al sistema almacenar los archivos que seran utilziadas para validar, los resultados de los experimientos.|
+| Busqueda vectorial | Azure AI Search | Este servicio permite al sistema gestionar la busqueda, los documentos cientificos que fueron almacendos en el blob storage.|
+| LLM y Agentes| GPT-4o-mini + Azure Agent Services | Los agentes crear sobre el modelo de gpt, dispondran de tareas especificas para balancear la carga y evitar asesoramiento no permitin, que llevan a un resultado equivocado de protocolo.|
 
 ---
 
-## Recursos Azure Desplegados
+## Recrusos previos utilizados
+
+Para desplegar y ejecutar de los ejemplos se utilizaron:
+
+1. Subcripcion activa de microsfot Azure.
+2. Cuenta activa de Github.
+
+Los recursos estan aprovicionados en las regiones de East US y en el proceso de desarrollo tambien se incorporar herramientas como:
+
+1. Visual Studio Code, para el dearrollo del frontend.
+2. Herrmienta de versionados como git y github.
+3. Lenguaje de programacion python.
+4. Herramienta para el uso de contenedores con Doker.
+
+## Region, costo y seguridad
+
+#### Disponibilidad Regional
+
+El proyecto esta disponiblida para el siguientes modelos: gpt 4o nano y gpt-5 nao global los cuales estan disponible para la ubicacion de East US, en caso de implmentar una mejora, la arquitectura escalable permitite mejor el modelo a versiones mas avanzadas de OpenIA.
+
+#### Costos
+
+Los precios de los servicios pueden variar según la región y el uso, y es difícil determinar los costos exactos. En parte se utilizo la calculador de costos de Azure.
+
+#### Seguridad
+
+
 
 <!-- |Recurso |	Nombre |	Región |	Propósito |
 | -------------------------- | -------------------------------- | -------------------------------- | -------------------------------- | 
@@ -102,7 +113,116 @@ SQL Database |	db-free-sql-alma |	West US |	Base de datos transaccional |
 
 --- -->
 
-Estrategia de Testeo
+---
+
+
+## Planteo del problema
+
+#### Contexto y Situación Problemática 
+
+En la actualidad, los laboratorios de investigación enfrentan un desafío estructural que compromete tanto la validez científica como la integridad física de sus operaciones. A pesar de los avances tecnológicos globales, una proporción significativa de estas instituciones continúa dependiendo de cuadernos de laboratorio físicos para el registro, conservación y validación de experimentos científicos. Esta dependencia de métodos analógicos en un entorno cada vez más digitalizado genera una serie de problemáticas interconectadas que afectan la calidad, seguridad y eficiencia de la investigación científica en la región.
+
+La falta de digitalización en los procesos de registro experimental no solo constituye un rezago tecnológico, sino que representa un riesgo tangible para la investigación científica. En los últimos años, esta situación ha derivado en incidentes que han ocasionado pérdidas económicas significativas estimadas en miles de dólares por experimento además de comprometer la integridad de los datos y la reproducibilidad de los hallazgos científicos.
+
+Sin embargo, la mera digitalización de cuadernos de laboratorio no es suficiente. Los investigadores enfrentan una creciente complejidad en el diseño experimental, la interpretación de resultados y la toma de decisiones durante el desarrollo de sus investigaciones. Existe una necesidad crítica de herramientas que asistan a los científicos en el razonamiento sobre sus experimentos apoyando, no reemplazando, el juicio científico mediante la interpretación automatizada de protocolos, la sugerencia contextualizada de variaciones experimentales y el análisis integrado de datos provenientes de múltiples fuentes (texto, archivos CSV, imágenes), todo ello dentro de un marco de seguridad estricto que garantice la integridad de la investigación y la protección de los dominios sensibles, particularmente en áreas biológicas y clínicas.
+
+#### Evidencia Empírica sobre las Brechas en el Apoyo al Razonamiento Científico
+
+La magnitud del problema trasciende las fronteras regionales y se inscribe en un fenómeno global de preocupación creciente. Diversos estudios han documentado las graves implicancias de no contar con sistemas adecuados de apoyo al razonamiento experimental:
+
+##### Crisis de Reproducibilidad y la Necesidad de Asistencia al Juicio Científico
+
+La comunidad científica internacional ha reconocido la existencia de una "crisis de reproducibilidad" que afecta a múltiples disciplinas. Un estudio sistemático publicado en las actas de la AAAI (Association for the Advancement of Artificial Intelligence) en abril de 2025 reveló datos contundentes: al intentar replicar 30 estudios altamente citados en inteligencia artificial, solo el 50% pudo ser reproducido total o parcialmente. La investigación demostró que la disponibilidad de código y datos se correlaciona fuertemente con la reproducibilidad: el 86% de los artículos que compartían código y datos fueron total o parcialmente reproducidos, en comparación con solo el 33% de aquellos que compartían únicamente datos.
+
+Este hallazgo subraya una brecha crítica: los investigadores carecen de sistemas que les permitan no solo registrar, sino también razonar sobre sus experimentos de manera estructurada, documentando las decisiones metodológicas y las variaciones introducidas durante el proceso. Un asistente basado en agentes que interprete protocolos y sugiera variaciones fundamentadas podría contribuir directamente a cerrar esta brecha, mejorando la trazabilidad del razonamiento científico.
+
+##### La Complejidad del Análisis Multimodal en la Investigación Moderna
+
+La investigación científica contemporánea genera datos en formatos cada vez más diversos: texto descriptivo, archivos CSV con datos cuantitativos e imágenes de microscopía, electroforesis o cultivos celulares. Un estudio publicado en Science Bulletin (febrero 2025) advierte que, sin acciones inmediatas, "la rápida generación de nuevos datos biológicos continuará siendo contrarrestada por pérdidas igualmente rápidas, perpetuando brechas de conocimiento". Los cuadernos físicos, por su naturaleza no indexable ni susceptible de integración multimodal, constituyen una fuente primaria de pérdida de información.
+
+La integración de datos provenientes de múltiples modalidades texto, datos tabulares e imágenes requiere capacidades de procesamiento que exceden las capacidades humanas en términos de velocidad y consistencia, pero que deben ser implementadas con estricta sujeción al juicio científico. Un asistente basado en agentes puede analizar resultados a través de estas modalidades, proporcionando explicaciones claras de sus recomendaciones sin usurpar la autoridad del investigador.
+
+##### Riesgos en Dominios Biológicos y Clínicos
+
+El trabajo en laboratorios biológicos y clínicos implica riesgos inherentes que requieren controles de seguridad estrictos. Un estudio de la Universidad EAN (Colombia, 2024) cuantificó los "costos de no calidad" asociados con eventos adversos e incidentes en servicios de laboratorio clínico, evidenciando que las fallas en los sistemas de registro, control y toma de decisiones generan pérdidas económicas directas y comprometen la seguridad operativa.
+
+La literatura especializada ha documentado incidentes graves relacionados con la manipulación de agentes biológicos, compuestos químicos peligrosos y muestras clínicas, muchos de los cuales podrían haber sido prevenidos mediante sistemas de asistencia que aplicaran límites de seguridad estrictos y filtrado de contenido. En este contexto, un asistente de cuaderno de laboratorio debe incorporar salvaguardas específicas que prevengan el asesoramiento no permitido y aseguren que las recomendaciones se mantengan dentro de los límites éticos y regulatorios.
+
+#### Fundamentación de un Asistente Basado en Agentes con IA
+
+Frente a esta problemática, un asistente de cuaderno de laboratorio basado en agentes—que interprete protocolos experimentales, sugiera variaciones fundamentadas para los siguientes pasos y analice resultados a partir de texto, archivos CSV o imágenes—se presenta como una solución no solo viable, sino ampliamente validada por la evidencia empírica en áreas relacionadas. Los beneficios de los sistemas basados en agentes han sido documentados rigurosamente:
+
+##### Capacidades de Orquestación y Manejo de Datos
+
+La arquitectura basada en agentes permite una orquestación robusta entre modelos de procesamiento de lenguaje natural para la interpretación de protocolos, modelos de visión computacional para el análisis de imágenes, y motores de razonamiento para la sugerencia de variaciones experimentales. Esta separación de responsabilidades, documentada en el proyecto BELLA II de RedCLARA, permite "espacios de experimentación controlados donde investigadores, desarrolladores e instituciones pueden validar soluciones tecnológicas complejas en condiciones realistas, minimizando riesgos y costos antes de la implementación a gran escala".
+
+##### Experiencias Exitosas con Sistemas de Asistencia Científica
+
+La Universidad de Southampton, tras una década de investigación e implementación de sistemas digitales de apoyo a la investigación, logró que más del 90% de los participantes en su programa piloto optaran por continuar utilizando la plataforma digital. Este éxito se atribuye no solo a las capacidades técnicas, sino a un enfoque integral que consideró las barreras humanas y organizacionales, así como la integración cuidadosa con los flujos de trabajo existentes. Los investigadores valoraron particularmente la capacidad de buscar información sobre experimentos previos y recibir sugerencias contextualizadas.
+
+##### El Papel de la Inteligencia Artificial Explicable
+
+La investigación en inteligencia artificial explicable ha demostrado que los sistemas que proporcionan justificaciones claras de sus recomendaciones generan mayor confianza y facilitan la adopción. En el contexto de un asistente de cuaderno de laboratorio, esto implica que el sistema debe explicar por qué sugiere una variación particular de un protocolo, sobre qué base analítica fundamenta su interpretación de resultados, y qué limitaciones o incertidumbres existen en sus recomendaciones.
+
+### Justificación del Asistente Basado en Agentes Propuesto
+
+La convergencia de cuatro factores fundamenta el desarrollo de un asistente de cuaderno de laboratorio basado en agentes:
+
+La urgencia del problema: Los incidentes documentados con pérdidas económicas significativas, la crisis de reproducibilidad y el riesgo de pérdida de conocimiento científico demandan una intervención inmediata.
+
+La evidencia de la solución: Los sistemas de apoyo digital a la investigación han demostrado consistentemente su capacidad para reducir riesgos, mejorar la reproducibilidad y optimizar tiempos operativos, especialmente cuando incorporan capacidades de razonamiento asistido.
+
+La necesidad de un enfoque centrado en el científico: Los sistemas deben asistir, no reemplazar, el juicio científico. Esto requiere arquitecturas basadas en agentes que puedan interpretar protocolos, sugerir variaciones y analizar resultados manteniendo al investigador en control.
+
+Los requisitos de seguridad y explicabilidad: En dominios biológicos y clínicos, los sistemas deben incorporar límites de seguridad estrictos, filtrado de contenido y capacidades de explicación claras para garantizar la confianza y la integridad de la investigación.
+
+##### Objetivo del Sistema Propuesto
+
+El presente proyecto se propone desarrollar un asistente de cuaderno de laboratorio basado en agentes que permita a los científicos:
+
+Interpretar protocolos experimentales mediante procesamiento de lenguaje natural, extrayendo pasos, condiciones y requisitos de seguridad.
+
+Sugerir variaciones fundamentadas para los siguientes pasos basándose en el análisis de experimentos previos, la literatura científica y los principios de diseño experimental, explicando claramente el fundamento de cada recomendación.
+
+Analizar resultados a partir de múltiples formatos texto descriptivo, archivos CSV con datos cuantitativos e imágenes de laboratorio integrando información multimodal para proporcionar una visión comprehensiva.
+
+Aplicar límites de seguridad estrictos, particularmente en dominios biológicos y clínicos, con filtrado de contenido que prevenga el asesoramiento no permitido y garantice que las recomendaciones se mantengan dentro de parámetros seguros.
+
+Proveer explicabilidad integral de todas las recomendaciones, permitiendo a los investigadores comprender la base de cada sugerencia y ejercer su juicio científico informado.
+
+Implementar una orquestación robusta de datos y modelos, garantizando la integridad de la información, la trazabilidad de las decisiones y la interoperabilidad con sistemas existentes.
+
+### Fuentes consutladas
+
+* **_AAAI (Association for the Advancement of Artificial Intelligence)_**
+Estudio sistemático sobre reproducibilidad en inteligencia artificial (abril 2025).
+Citado en el apartado "Crisis de Reproducibilidad y la Necesidad de Asistencia al Juicio Científico".
+
+* **_Science Bulletin_**
+Estudio sobre datos oscuros en investigación biológica (febrero 2025).
+Citado en el apartado "La Complejidad del Análisis Multimodal en la Investigación Moderna".
+
+* **_Universidad EAN (Colombia)_**
+Estudio sobre "costos de no calidad" asociados a eventos adversos e incidentes en servicios de laboratorio clínico (2024).
+Citado en el apartado "Riesgos en Dominios Biológicos y Clínicos".
+
+* **_Proyecto BELLA II / RedCLARA_**
+Documentación sobre espacios de experimentación controlados y validación de soluciones tecnológicas (2025).
+Citado en el apartado "Capacidades de Orquestación y Manejo de Datos".
+
+* **_Universidad de Southampton_**
+Década de investigación e implementación de sistemas digitales de apoyo a la investigación (2026).
+Citado en el apartado "Experiencias Exitosas con Sistemas de Asistencia Científica".
+
+* **_Literatura sobre Inteligencia Artificial Explicable (XAI)_**
+Investigación sobre sistemas que proporcionan justificaciones claras para generar confianza y facilitar adopción.
+Citado en el apartado "El Papel de la Inteligencia Artificial Explicable".
+
+---
+
+
+
+<!-- Estrategia de Testeo
 
 Capturas de Pantalla
 
@@ -110,5 +230,5 @@ Video Final del Proyecto
 
 Guía de Ejecución del Proyecto
 
-Instalación y Configuración
+Instalación y Configuración -->
 
