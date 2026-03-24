@@ -90,6 +90,8 @@
 |-- docs
     |-- arquitectura-idea-proyecto.md
     |-- img
+        |-- a.png
+        |-- alma.png
         |-- dasboard-alma.jpeg
         |-- diagrama-arquitectura-alma.png
         |-- ejmplo-principal-alma.jpeg
