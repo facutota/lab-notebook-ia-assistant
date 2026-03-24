@@ -2,6 +2,8 @@
 
 # 🤖 ALMA: AI Lab Multipurpose Assistant
 
+![Vista princial](./docs/img/alma.png)
+
 ## Tabla de contenido
 
 - [Descripcion general](#descripcion-general)
@@ -17,7 +19,7 @@
 - [Instalación y Configuración](#recursos-azure-desplegados) -->
 
 
-## Descripcion general
+## 📋 Descripcion general
 
 Lab Notebook AI (ALMA) es una plataforma web online dedicada al area cientifica, que sirve para asistir a los laboratorios en las activides que permitan gestionar protocolos experimentales sin perder el jucio cientico.
 
@@ -43,7 +45,7 @@ En este ejemplo podemos observar el flujo completo de interacción entre el cien
 
 ---
 
-## Caracteristicas
+## ⚗️ Caracteristicas
 
 Este proyecto propociona a los laboratorios las siguiente caracteristicas:
 
@@ -57,7 +59,7 @@ Este proyecto propociona a los laboratorios las siguiente caracteristicas:
 
 ---
 
-## Arquitectura del Sistema
+## 🧬 Arquitectura del Sistema
 
 El proyecto se desarrolla íntegramente sobre el ecosistema de Microsoft Azure, empleando una arquitectura multicapa que integra servicios gestionados para garantizar escalabilidad y seguridad.
 
@@ -70,13 +72,61 @@ El proyecto se desarrolla íntegramente sobre el ecosistema de Microsoft Azure, 
 | Frotend     | Azure Static Web App  | Este servicio permitira mostrar a los usuarios externos la interfaz necesaria para interacturar son el sistema.|
 | Backend API | Azure Web App (Python) | Este capa tiene como objetivo establecer las conexiones mediante Apis entre Azure Foundry, tambien actuar como intermediario con el servicios de Azure Static web App, ademas de establecer la logica del sistema. |
 | Base de datos            | Azure SQL (capa gratuita)           | Este base de datos almacenara, el registro de usuario, proyectos, experimientos y anotaciones.|
-| Almacenamiento              | Azure Blob Storage  | Repositorio de archivos de texto, imagenes y resultados Este servicio permite al sistema almacenar los archivos que seran utilziadas para validar, los resultados de los experimientos.|
+| Almacenamiento              | Azure Storage Acount  | Repositorio de archivos de texto, imagenes y resultados Este servicio permite al sistema almacenar los archivos que seran utilziadas para validar, los resultados de los experimientos.|
 | Busqueda vectorial | Azure AI Search | Este servicio permite al sistema gestionar la busqueda, los documentos cientificos que fueron almacendos en el blob storage.|
-| LLM y Agentes| GPT-4o-mini + Azure Agent Services | Los agentes crear sobre el modelo de gpt, dispondran de tareas especificas para balancear la carga y evitar asesoramiento no permitin, que llevan a un resultado equivocado de protocolo.|
+| LLM | Azure Open AI | Se optado por utilizar el modelo de GTP-4 para la creaciones de agentes.|
+| Gestion de Agentes | Azure Agent AI | Los agente creados sobre el modelo de gpt disponene de tareas especificas,|
+
+La arquitectura de la plataforma Alma ha sido diseñada e implementada utilizando Azure Resource Group como herramienta fundamental para la gestión y administración centralizada de todos los servicios que la componen. A continuación, se describen los servicios aprovisionados y su rol dentro de la plataforma:
+
+##### Azure AI Foundry
+Este servicio fue aprovisionado junto con un project hub, el cual actúa como punto central para la administración y gobernanza de los servicios de inteligencia artificial. Desde este hub se gestionan las capacidades de Azure AI Agent y Azure OpenAI, permitiendo un control unificado de los recursos de IA.
+
+##### Azure AI Agent
+Este servicio es el encargado de la orquestación de los agentes de IA desarrollados para el proyecto. Su función principal es coordinar la toma de decisiones automatizada, facilitando la interacción entre los distintos agentes y asegurando que los procesos de inferencia y acción se ejecuten de manera eficiente y coherente.
+
+##### Azure OpenAI
+A través de este servicio se habilita el acceso a modelos avanzados de lenguaje. En particular, se ha seleccionado el modelo GPT-4o, el cual potencia las capacidades cognitivas de los agentes, permitiendo procesamiento de lenguaje natural, generación de respuestas contextualizadas y soporte en la toma de decisiones dentro de la plataforma.
+
+##### Azure Storage Account
+Se ha implementado una cuenta de almacenamiento organizada en contenedores y directorios estructurados por dominios de conocimiento. Actualmente, las áreas definidas son:
+
+* Biología
+
+* Éticas
+
+* Protocolos
+
+Esta estructura permite que los agentes de IA accedan y extraigan información relevante de manera eficiente, garantizando que los resultados entregados a los científicos estén fundamentados en datos organizados y contextualmente adecuados.
+
+##### Azure Static Web App
+Para el desarrollo del frontend, se aprovisionó una aplicación web estática, la cual se integró con GitHub para habilitar un flujo de trabajo continuo de integración y despliegue. El entorno visual fue construido utilizando React y Next.js, ofreciendo una interfaz moderna, dinámica y altamente performante para los usuarios finales.
+
+Azure Web App
+El backend de la plataforma está alojado en una Azure Web App, donde se define y ejecuta la lógica de negocio. Para ello, se utilizó Python como lenguaje de desarrollo, implementando una serie de endpoints REST que exponen las funcionalidades clave de la plataforma, asegurando escalabilidad y mantenibilidad.
+
+Azure SQL Database
+Se diseñó e implementó un modelo relacional compuesto por 8 tablas, las cuales permiten almacenar y gestionar de forma estructurada la información crítica de la plataforma. Entre los datos gestionados se encuentran:
+
+* Creación y seguimiento de proyectos
+
+* Registro de experimentos
+
+* Anotaciones generadas durante los procesos de análisis
+
+* Gestión de usuarios y roles, asegurando un control de acceso seguro y personalizado
 
 ---
 
-## Recrusos previos utilizados
+## 🤖 Flujo de Multiagentes
+
+####  Definicion de los agentes
+
+* Agente numero 1:
+* Agente numero 2:
+* Agente numero 3:
+
+## 💻 Recursos previos utilizados
 
 Para desplegar y ejecutar de los ejemplos se utilizaron:
 
