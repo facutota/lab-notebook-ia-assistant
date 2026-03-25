@@ -13,6 +13,7 @@
         |-- main.py
         |-- requirements.txt
         |-- services
+            |-- embeddings.py
             |-- llm_service.py
             |-- multimodal_service.py
             |-- rag_service.py
