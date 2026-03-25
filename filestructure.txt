@@ -7,21 +7,29 @@
         |-- agent.yaml
         |-- openapi.json
 |-- alma-api
+    |-- .env
     |-- app
-        |-- .env
         |-- .gitignore
         |-- main.py
+        |-- prompts
+            |-- system_prompt_4.txt
+            |-- system_rag.txt
+            |-- system_router.txt
         |-- requirements.txt
         |-- services
             |-- embeddings.py
             |-- llm_service.py
             |-- multimodal_service.py
+            |-- prompt_service.py
             |-- rag_service.py
             |-- router.py
             |-- test_embeddings.py
             |-- __init__.py
             |-- __pycache__
                 |-- embeddings.cpython-314.pyc
+                |-- llm_service.cpython-314.pyc
+                |-- prompt_service.cpython-314.pyc
+                |-- router.cpython-314.pyc
                 |-- test_embeddings.cpython-314.pyc
                 |-- __init__.cpython-314.pyc
         |-- startup.txt

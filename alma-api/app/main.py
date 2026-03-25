@@ -3,10 +3,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-#from router import route
-#from llm_service import call_gpt4o, call_nano
-from services.llm_service import call_gpt4o, call_nano
-from services.router import route
+from app.services.llm_service import call_gpt4o, call_nano
+from app.services.router import route
 
 load_dotenv()
 
@@ -20,7 +18,13 @@ app.add_middleware(
     allow_headers    =["*"],
 )
 
-SYSTEM_PROMPT_4    = os.getenv("SYSTEM_PROMPT_4")
+def load_prompt(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+SYSTEM_PROMPT_4    = load_prompt("app/prompts/system_prompt_4.txt")
+
+#SYSTEM_PROMPT_4    = os.getenv("SYSTEM_PROMPT_4")
 SYSTEM_PROMPT_NANO = os.getenv("SYSTEM_PROMPT_NANO")
 
 

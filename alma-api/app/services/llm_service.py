@@ -1,6 +1,10 @@
+from app.services.prompt_service import load_prompt
 from openai import AzureOpenAI
-import os
 from dotenv import load_dotenv
+import os
+
+SYSTEM_PROMPT_GPT4O  = load_prompt("system_prompt_4.txt")
+SYSTEM_PROMPT_ROUTER = load_prompt("system_router.txt")
 
 load_dotenv()
 
@@ -14,7 +18,10 @@ def call_gpt4o(messages):
     try:
         response = client.chat.completions.create(
             model=os.getenv("AZURE_DEPLOYMENT_GPT4O"),
-            messages=messages,
+            messages=[
+            {"role": "system", "content": SYSTEM_PROMPT_GPT4O},
+            {"role": "user", "content": user_message}
+        ],
             max_completion_tokens=1500
         )
         return response.choices[0].message.content
