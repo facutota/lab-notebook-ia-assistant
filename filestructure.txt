@@ -12,9 +12,14 @@
         |-- .gitignore
         |-- main.py
         |-- requirements.txt
+        |-- services
+            |-- llm_service.py
+            |-- multimodal_service.py
+            |-- rag_service.py
         |-- startup.txt
         |-- __pycache__
             |-- main.cpython-314.pyc
+    |-- router.py
 |-- apps
     |-- web
         |-- .gitignore
