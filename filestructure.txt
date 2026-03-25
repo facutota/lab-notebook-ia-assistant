@@ -12,13 +12,14 @@
         |-- .gitignore
         |-- main.py
         |-- requirements.txt
-        |-- router.py
         |-- services
             |-- embeddings.py
             |-- llm_service.py
             |-- multimodal_service.py
             |-- rag_service.py
+            |-- router.py
             |-- test_embeddings.py
+            |-- __init__.py
             |-- __pycache__
                 |-- embeddings.cpython-314.pyc
         |-- startup.txt

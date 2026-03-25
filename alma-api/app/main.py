@@ -3,8 +3,10 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from router import route
+#from router import route
 from llm_service import call_gpt4o, call_nano
+from services.llm_service import call_gpt4o, call_nano
+from services.router import route
 
 load_dotenv()
 
@@ -24,7 +26,7 @@ SYSTEM_PROMPT_NANO = os.getenv("SYSTEM_PROMPT_NANO")
 
 class ChatRequest(BaseModel):
     message: str
-    files: list[str] = []
+    files  : list[str] = []
 
 
 @app.get("/health")
