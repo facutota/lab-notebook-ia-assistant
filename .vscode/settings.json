@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./alma-api/app/services"
+    ]
+}
