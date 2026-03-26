@@ -2,11 +2,11 @@ import uuid
 from datetime import datetime
 from typing import List
 from sqlalchemy import Boolean, String, DateTime
-from app.database import Base
+from database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 
-from app.models import usuario_rol
+from models.usuario_rol import usuario_rol
 
 
 class Usuario(Base):
@@ -24,6 +24,7 @@ class Usuario(Base):
     usa_proveedor: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=False, name="UsaProveedor")
     habilitado: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=True, name="Habilitado")
     fecha_creacion: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, name="FechaCreacion")
+    fecha_modificacion: Mapped[datetime] = mapped_column(DateTime, nullable=True, name="FechaModificacion")
     proyectos: Mapped[List["Proyecto"]] = relationship(back_populates="usuario")
     roles: Mapped[List["Rol"]] = relationship(
         "Rol",
@@ -31,3 +32,5 @@ class Usuario(Base):
         back_populates="usuarios"
     )
     anotaciones: Mapped[List["Anotacion"]] = relationship(back_populates="usuario")
+    comentario_anotaciones: Mapped[List["ComentarioAnotacion"]] = relationship(back_populates="usuario")
+    comentario_experimentos: Mapped[List["ComentarioExperimento"]] = relationship(back_populates="usuario")

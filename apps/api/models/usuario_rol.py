@@ -1,6 +1,6 @@
 from sqlalchemy import Column, ForeignKey, Table
 
-from app.database import Base
+from database import Base
 
 usuario_rol = Table(
     "UsuarioRol",

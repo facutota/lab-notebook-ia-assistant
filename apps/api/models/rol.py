@@ -1,11 +1,11 @@
 from typing import List
 import uuid
 from sqlalchemy import String
-from app.database import Base
+from database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 
-from app.models import usuario_rol
+from models.usuario_rol import usuario_rol
 
 
 class Rol(Base):
