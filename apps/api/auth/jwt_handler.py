@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime, UTC
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List
 from jose import jwt
 
@@ -6,11 +6,11 @@ from config import settings
 
 
 def create_access_token(subject: str, roles: List[str], expires_in: timedelta) -> str:
-    expiration = datetime.now(UTC) + expires_in
+    expiration = datetime.now(timezone.utc) + expires_in
     to_encode = {
         "sub": str(subject),
         "exp": expiration,
-        "iat": datetime.now(UTC),
+        "iat": datetime.now(timezone.utc),
         "roles": roles,
     }
 
@@ -20,11 +20,11 @@ def create_access_token(subject: str, roles: List[str], expires_in: timedelta) -
 
 
 def create_refresh_token(subject: str) -> str:
-    expiration = datetime.now(UTC) + timedelta(days=settings.refresh_token_expire_in_days)
+    expiration = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_in_days)
     to_encode = {
         "sub": str(subject),
         "exp": expiration,
-        "iat": datetime.now(UTC),
+        "iat": datetime.now(timezone.utc),
         "token_type": "refresh",
     }
     encoded_jwt = jwt.encode(to_encode, settings.auth_secret_key, algorithm=settings.algorithm)

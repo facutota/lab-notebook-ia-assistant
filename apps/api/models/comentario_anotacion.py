@@ -29,5 +29,5 @@ class ComentarioAnotacion(Base):
         back_populates="comentario_anotaciones"
     )
     anotacion: Mapped["Anotacion"] = relationship(
-        back_populates="comentario_anotaciones"
+        back_populates="comentarios_anotaciones"
     )

@@ -27,5 +27,5 @@ class ComentarioExperimento(Base):
         back_populates="comentario_experimentos"
     )
     experimento: Mapped["Experimento"] = relationship(
-        back_populates="comentario_experimentos"
+        back_populates="comentarios_experimentos"
     )

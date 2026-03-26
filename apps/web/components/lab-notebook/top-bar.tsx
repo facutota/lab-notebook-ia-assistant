@@ -15,9 +15,21 @@ import { Input } from "@/components/ui/input"
 
 interface TopBarProps {
   onNewProject: () => void
+  onSignOut: () => void
+  userEmail: string
+  userName: string
 }
 
-export function TopBar({ onNewProject }: TopBarProps) {
+function buildInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("")
+}
+
+export function TopBar({ onNewProject, onSignOut, userEmail, userName }: TopBarProps) {
   return (
     <header className="flex h-16 items-center justify-between border-b border-border bg-card px-6">
       <div className="relative w-full max-w-md">
@@ -46,23 +58,25 @@ export function TopBar({ onNewProject }: TopBarProps) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full" aria-label="Open user menu">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
-                <AvatarFallback className="bg-primary text-sm text-primary-foreground">JD</AvatarFallback>
+                <AvatarImage src="/placeholder-avatar.jpg" alt={userName} />
+                <AvatarFallback className="bg-primary text-sm text-primary-foreground">
+                  {buildInitials(userName)}
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span>Dr. Jane Doe</span>
-                <span className="text-xs font-normal text-muted-foreground">jane.doe@lab.edu</span>
+                <span>{userName}</span>
+                <span className="text-xs font-normal text-muted-foreground">{userEmail}</span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Preferences</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Sign out</DropdownMenuItem>
+            <DropdownMenuItem onClick={onSignOut}>Sign out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

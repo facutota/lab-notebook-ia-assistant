@@ -6,6 +6,7 @@ import { AIAssistantView } from "@/components/lab-notebook/ai-assistant-view"
 import { DashboardView } from "@/components/lab-notebook/dashboard-view"
 import { ExperimentDetailView } from "@/components/lab-notebook/experiment-detail-view"
 import { ExperimentsView } from "@/components/lab-notebook/experiments-view"
+import { LoginView } from "@/components/lab-notebook/login-view"
 import { MobileSidebar } from "@/components/lab-notebook/mobile-sidebar"
 import { NewExperimentModal } from "@/components/lab-notebook/new-experiment-modal"
 import { ProjectDetailView } from "@/components/lab-notebook/project-detail-view"
@@ -13,7 +14,25 @@ import { SettingsView } from "@/components/lab-notebook/settings-view"
 import { Sidebar } from "@/components/lab-notebook/sidebar"
 import { TopBar } from "@/components/lab-notebook/top-bar"
 import { buildDashboardStats, initialProjects, recentActivity } from "@/features/lab-notebook/data"
+import { loginWithPassword } from "@/lib/auth/api"
+import type { AuthSession } from "@/lib/auth/types"
 import type { AppView, Experiment, NewProjectInput, Project } from "@/features/lab-notebook/types"
+
+const AUTH_STORAGE_KEY = "alma-auth-session"
+
+function buildUserName(email: string) {
+  const localPart = email.split("@")[0] ?? ""
+  const words = localPart
+    .split(/[._-]+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  if (words.length === 0) {
+    return email
+  }
+
+  return words.map((part) => part[0]!.toUpperCase() + part.slice(1)).join(" ")
+}
 
 export default function LabNotebookApp() {
   const [activeView, setActiveView] = useState<AppView>("dashboard")
@@ -21,6 +40,24 @@ export default function LabNotebookApp() {
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
   const [selectedExperimentId, setSelectedExperimentId] = useState<number | null>(null)
   const [showNewExperimentModal, setShowNewExperimentModal] = useState(false)
+  const [session, setSession] = useState<AuthSession | null>(() => {
+    if (typeof window === "undefined") {
+      return null
+    }
+
+    const storedSession = window.localStorage.getItem(AUTH_STORAGE_KEY)
+
+    if (!storedSession) {
+      return null
+    }
+
+    try {
+      return JSON.parse(storedSession) as AuthSession
+    } catch {
+      window.localStorage.removeItem(AUTH_STORAGE_KEY)
+      return null
+    }
+  })
 
   const selectedProject = useMemo(
     () => projects.find((project) => project.id === selectedProjectId) ?? null,
@@ -56,6 +93,25 @@ export default function LabNotebookApp() {
 
   const handleAnalyzeWithAI = () => {
     setActiveView("ai-assistant")
+  }
+
+  const handleLogin = async ({ email, password }: { email: string; password: string }) => {
+    const tokens = await loginWithPassword(email, password)
+    const nextSession: AuthSession = {
+      email: email.trim(),
+      ...tokens,
+    }
+
+    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextSession))
+    setSession(nextSession)
+  }
+
+  const handleSignOut = () => {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY)
+    setSession(null)
+    setSelectedProjectId(null)
+    setSelectedExperimentId(null)
+    setActiveView("dashboard")
   }
 
   const handleCreateProject = (input: NewProjectInput) => {
@@ -126,6 +182,10 @@ export default function LabNotebookApp() {
     }
   }
 
+  if (!session) {
+    return <LoginView onSubmit={handleLogin} />
+  }
+
   return (
     <div className="flex h-screen bg-background">
       <div className="hidden md:block">
@@ -146,7 +206,12 @@ export default function LabNotebookApp() {
         </header>
 
         <div className="hidden md:block">
-          <TopBar onNewProject={() => setShowNewExperimentModal(true)} />
+          <TopBar
+            onNewProject={() => setShowNewExperimentModal(true)}
+            onSignOut={handleSignOut}
+            userEmail={session.email}
+            userName={buildUserName(session.email)}
+          />
         </div>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{renderContent()}</main>
