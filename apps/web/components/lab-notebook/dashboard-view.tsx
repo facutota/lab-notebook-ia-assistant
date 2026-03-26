@@ -7,7 +7,7 @@ import type { ActivityItem, DashboardStat } from "@/features/lab-notebook/types"
 import { StatusBadge } from "./status-badge"
 
 interface DashboardViewProps {
-  onNewExperiment: () => void
+  onNewProject: () => void
   onOpenAI: () => void
   stats: DashboardStat[]
   recentActivity: ActivityItem[]
@@ -19,7 +19,7 @@ const statIcons = {
   alert: AlertTriangle,
 } as const
 
-export function DashboardView({ onNewExperiment, onOpenAI, stats, recentActivity }: DashboardViewProps) {
+export function DashboardView({ onNewProject, onOpenAI, stats, recentActivity }: DashboardViewProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -58,13 +58,13 @@ export function DashboardView({ onNewExperiment, onOpenAI, stats, recentActivity
             <Button
               variant="outline"
               className="h-auto flex-col gap-2 py-6 hover:border-primary/30 hover:bg-accent"
-              onClick={onNewExperiment}
+              onClick={onNewProject}
             >
               <div className="rounded-lg bg-primary/10 p-2">
                 <Plus className="h-5 w-5 text-primary" />
               </div>
-              <span className="font-medium">Create Experiment</span>
-              <span className="text-xs text-muted-foreground">Start a new experiment</span>
+              <span className="font-medium">Create Project</span>
+              <span className="text-xs text-muted-foreground">Start a new research program</span>
             </Button>
             <Button
               variant="outline"
@@ -83,7 +83,7 @@ export function DashboardView({ onNewExperiment, onOpenAI, stats, recentActivity
         <Card className="border-border/50 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg">Recent Activity</CardTitle>
-            <CardDescription>Latest updates from your experiments</CardDescription>
+            <CardDescription>Latest updates across projects and experiments</CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-4">
@@ -97,6 +97,7 @@ export function DashboardView({ onNewExperiment, onOpenAI, stats, recentActivity
                       <p className="truncate text-sm font-medium text-foreground">{activity.title}</p>
                       <StatusBadge status={activity.status} />
                     </div>
+                    <p className="truncate text-xs text-muted-foreground">{activity.subtitle}</p>
                     <p className="text-xs text-muted-foreground">
                       {activity.action} • {activity.time}
                     </p>

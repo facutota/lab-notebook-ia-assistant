@@ -8,23 +8,29 @@ import { ExperimentDetailView } from "@/components/lab-notebook/experiment-detai
 import { ExperimentsView } from "@/components/lab-notebook/experiments-view"
 import { MobileSidebar } from "@/components/lab-notebook/mobile-sidebar"
 import { NewExperimentModal } from "@/components/lab-notebook/new-experiment-modal"
+import { ProjectDetailView } from "@/components/lab-notebook/project-detail-view"
 import { SettingsView } from "@/components/lab-notebook/settings-view"
 import { Sidebar } from "@/components/lab-notebook/sidebar"
 import { TopBar } from "@/components/lab-notebook/top-bar"
-import { buildDashboardStats, initialExperiments, recentActivity } from "@/features/lab-notebook/data"
-import type { AppView, Experiment, NewExperimentInput } from "@/features/lab-notebook/types"
+import { buildDashboardStats, initialProjects, recentActivity } from "@/features/lab-notebook/data"
+import type { AppView, Experiment, NewProjectInput, Project } from "@/features/lab-notebook/types"
 
 export default function LabNotebookApp() {
   const [activeView, setActiveView] = useState<AppView>("dashboard")
-  const [experiments, setExperiments] = useState<Experiment[]>(initialExperiments)
+  const [projects, setProjects] = useState<Project[]>(initialProjects)
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
   const [selectedExperimentId, setSelectedExperimentId] = useState<number | null>(null)
   const [showNewExperimentModal, setShowNewExperimentModal] = useState(false)
 
-  const selectedExperiment = useMemo(
-    () => experiments.find((experiment) => experiment.id === selectedExperimentId) ?? null,
-    [experiments, selectedExperimentId]
+  const selectedProject = useMemo(
+    () => projects.find((project) => project.id === selectedProjectId) ?? null,
+    [projects, selectedProjectId]
   )
-  const dashboardStats = useMemo(() => buildDashboardStats(experiments), [experiments])
+  const selectedExperiment = useMemo(
+    () => selectedProject?.experiments.find((experiment) => experiment.id === selectedExperimentId) ?? null,
+    [selectedProject, selectedExperimentId]
+  )
+  const dashboardStats = useMemo(() => buildDashboardStats(projects), [projects])
 
   const handleViewChange = (view: AppView | "new-experiment") => {
     if (view === "new-experiment") {
@@ -33,45 +39,67 @@ export default function LabNotebookApp() {
     }
 
     setActiveView(view)
+    setSelectedProjectId(null)
     setSelectedExperimentId(null)
+  }
+
+  const handleSelectProject = (project: Project) => {
+    setSelectedProjectId(project.id)
+    setSelectedExperimentId(null)
+    setActiveView("projects")
   }
 
   const handleSelectExperiment = (experiment: Experiment) => {
     setSelectedExperimentId(experiment.id)
-    setActiveView("experiments")
+    setActiveView("projects")
   }
 
   const handleAnalyzeWithAI = () => {
     setActiveView("ai-assistant")
-    setSelectedExperimentId(null)
   }
 
-  const handleCreateExperiment = (input: NewExperimentInput) => {
-    const nextExperiment: Experiment = {
-      id: experiments.reduce((maxId, experiment) => Math.max(maxId, experiment.id), 0) + 1,
+  const handleCreateProject = (input: NewProjectInput) => {
+    const nextProject: Project = {
+      id: projects.reduce((maxId, project) => Math.max(maxId, project.id), 0) + 1,
       name: input.name,
       description: input.description,
       status: "pending",
-      date: new Intl.DateTimeFormat("es-AR", {
+      updatedAt: new Intl.DateTimeFormat("es-AR", {
         month: "short",
         day: "numeric",
         year: "numeric",
       }).format(new Date()),
-      tags: input.tags.length > 0 ? input.tags : [input.category],
+      domain: input.domain,
+      tags: input.tags.length > 0 ? input.tags : [input.domain],
+      lead: "Dr. Jane Doe",
+      experiments: [],
     }
 
-    setExperiments((currentExperiments) => [nextExperiment, ...currentExperiments])
+    setProjects((currentProjects) => [nextProject, ...currentProjects])
     setShowNewExperimentModal(false)
-    setSelectedExperimentId(nextExperiment.id)
-    setActiveView("experiments")
+    setSelectedProjectId(nextProject.id)
+    setSelectedExperimentId(null)
+    setActiveView("projects")
   }
 
   const renderContent = () => {
-    if (selectedExperiment) {
+    if (selectedProject && selectedExperiment) {
       return (
         <ExperimentDetailView
           experiment={selectedExperiment}
+          projectName={selectedProject.name}
           onBack={() => setSelectedExperimentId(null)}
+          onAnalyzeWithAI={handleAnalyzeWithAI}
+        />
+      )
+    }
+
+    if (selectedProject) {
+      return (
+        <ProjectDetailView
+          project={selectedProject}
+          onBack={() => setSelectedProjectId(null)}
+          onOpenExperiment={handleSelectExperiment}
           onAnalyzeWithAI={handleAnalyzeWithAI}
         />
       )
@@ -81,14 +109,14 @@ export default function LabNotebookApp() {
       case "dashboard":
         return (
           <DashboardView
-            onNewExperiment={() => setShowNewExperimentModal(true)}
+            onNewProject={() => setShowNewExperimentModal(true)}
             onOpenAI={() => setActiveView("ai-assistant")}
             stats={dashboardStats}
             recentActivity={recentActivity}
           />
         )
-      case "experiments":
-        return <ExperimentsView experiments={experiments} onSelectExperiment={handleSelectExperiment} />
+      case "projects":
+        return <ExperimentsView projects={projects} onSelectProject={handleSelectProject} />
       case "ai-assistant":
         return <AIAssistantView />
       case "settings":
@@ -118,7 +146,7 @@ export default function LabNotebookApp() {
         </header>
 
         <div className="hidden md:block">
-          <TopBar onNewExperiment={() => setShowNewExperimentModal(true)} />
+          <TopBar onNewProject={() => setShowNewExperimentModal(true)} />
         </div>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{renderContent()}</main>
@@ -127,7 +155,7 @@ export default function LabNotebookApp() {
       <NewExperimentModal
         open={showNewExperimentModal}
         onClose={() => setShowNewExperimentModal(false)}
-        onCreate={handleCreateExperiment}
+        onCreate={handleCreateProject}
       />
     </div>
   )

@@ -14,17 +14,26 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { experimentAttachments, experimentTimeline } from "@/features/lab-notebook/data"
+import { getExperimentAttachments, getExperimentTimeline } from "@/features/lab-notebook/data"
 import type { Experiment } from "@/features/lab-notebook/types"
 import { StatusBadge } from "./status-badge"
 
 interface ExperimentDetailViewProps {
   experiment: Experiment
+  projectName: string
   onBack: () => void
   onAnalyzeWithAI: () => void
 }
 
-export function ExperimentDetailView({ experiment, onBack, onAnalyzeWithAI }: ExperimentDetailViewProps) {
+export function ExperimentDetailView({
+  experiment,
+  projectName,
+  onBack,
+  onAnalyzeWithAI,
+}: ExperimentDetailViewProps) {
+  const experimentAttachments = getExperimentAttachments(experiment)
+  const experimentTimeline = getExperimentTimeline(experiment)
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -43,6 +52,7 @@ export function ExperimentDetailView({ experiment, onBack, onAnalyzeWithAI }: Ex
               <h1 className="text-2xl font-semibold text-foreground">{experiment.name}</h1>
               <StatusBadge status={experiment.status} />
             </div>
+            <p className="mb-3 text-sm text-muted-foreground">Project: {projectName}</p>
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <Calendar className="h-4 w-4" />

@@ -24,7 +24,7 @@ interface SidebarProps {
 
 const navIcons = {
   dashboard: LayoutDashboard,
-  experiments: FlaskConical,
+  projects: FlaskConical,
   new: Plus,
   ai: Bot,
   settings: Settings,

@@ -1,20 +1,16 @@
 "use client"
 
-import { useState } from "react"
-import { Bot, Send, Sparkles, User } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Bot, LoaderCircle, Mic, Paperclip, Send, Sparkles, User, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { getSpeechRecognitionApi, getSpeechTranscript, type SpeechRecognitionInstance } from "@/lib/browser/speech-recognition"
+import { buildChatMessagePayload, formatChatTimestamp, sendChatMessage } from "@/lib/chat/api"
+import type { ChatMessage } from "@/lib/chat/types"
 import { cn } from "@/lib/utils"
 
-interface Message {
-  id: number
-  role: "user" | "assistant"
-  content: string
-  timestamp: string
-}
-
-const initialMessages: Message[] = [
+const initialMessages: ChatMessage[] = [
   {
     id: 1,
     role: "assistant",
@@ -32,31 +28,122 @@ const suggestedPrompts = [
 ]
 
 export function AIAssistantView() {
-  const [messages, setMessages] = useState<Message[]>(initialMessages)
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
   const [input, setInput] = useState("")
+  const [attachments, setAttachments] = useState<File[]>([])
+  const [isSending, setIsSending] = useState(false)
+  const [isListening, setIsListening] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSend = () => {
-    if (!input.trim()) return
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
-    const userMessage: Message = {
-      id: messages.length + 1,
+  const canSend = input.trim().length > 0 || attachments.length > 0
+
+  const handleFilesSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nextFiles = Array.from(event.target.files ?? [])
+    if (nextFiles.length === 0) {
+      return
+    }
+
+    setAttachments((currentFiles) => [...currentFiles, ...nextFiles])
+    event.target.value = ""
+  }
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+  }, [messages, isSending])
+
+  const handleRemoveAttachment = (fileName: string) => {
+    setAttachments((currentFiles) => currentFiles.filter((file) => file.name !== fileName))
+  }
+
+  const handleToggleMicrophone = () => {
+    const speechRecognitionApi = getSpeechRecognitionApi()
+
+    if (!speechRecognitionApi) {
+      setError("Voice input is not available in this browser.")
+      return
+    }
+
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop()
+      setIsListening(false)
+      return
+    }
+
+    setError(null)
+
+    const recognition = new speechRecognitionApi()
+    recognition.lang = "en-US"
+    recognition.continuous = false
+    recognition.interimResults = false
+
+    recognition.onresult = (event) => {
+      const transcript = getSpeechTranscript(event)
+      setInput((currentValue) => `${currentValue}${currentValue ? " " : ""}${transcript}`.trim())
+    }
+
+    recognition.onerror = (event) => {
+      setError(event.error === "not-allowed" ? "Microphone access was denied." : "Voice input failed.")
+      setIsListening(false)
+    }
+
+    recognition.onend = () => {
+      setIsListening(false)
+    }
+
+    recognitionRef.current = recognition
+    recognition.start()
+    setIsListening(true)
+  }
+
+  const handleSend = async () => {
+    if (!canSend || isSending) {
+      return
+    }
+
+    const userMessage: ChatMessage = {
+      id: Date.now(),
       role: "user",
-      content: input,
-      timestamp: "Just now",
+      content: input.trim() || "Attached files for analysis",
+      timestamp: formatChatTimestamp(),
+      attachments: attachments.map((file) => ({ name: file.name, type: file.type })),
     }
+    const messagePayload = buildChatMessagePayload(input, attachments)
 
-    const assistantMessage: Message = {
-      id: messages.length + 2,
-      role: "assistant",
-      content:
-        "I've received your request: \"" +
-        input +
-        "\". In a fully integrated system, I would analyze your experiments and provide insights based on your data. For now, I can help you brainstorm experimental approaches, discuss methodologies, or answer general research questions.",
-      timestamp: "Just now",
-    }
-
-    setMessages((currentMessages) => [...currentMessages, userMessage, assistantMessage])
+    setMessages((currentMessages) => [...currentMessages, userMessage])
     setInput("")
+    setAttachments([])
+    setError(null)
+    setIsSending(true)
+
+    try {
+      const payload = await sendChatMessage(messagePayload)
+      const assistantMessage: ChatMessage = {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: payload.reply ?? "The assistant returned an empty response.",
+        timestamp: formatChatTimestamp(),
+      }
+
+      setMessages((currentMessages) => [...currentMessages, assistantMessage])
+    } catch (caughtError) {
+      const message = caughtError instanceof Error ? caughtError.message : "Unexpected chat error."
+      setError(message)
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        {
+          id: Date.now() + 1,
+          role: "assistant",
+          content: `I couldn't reach the backend right now. ${message}`,
+          timestamp: formatChatTimestamp(),
+        },
+      ])
+    } finally {
+      setIsSending(false)
+    }
   }
 
   return (
@@ -91,11 +178,29 @@ export function AIAssistantView() {
                     : "bg-primary text-primary-foreground"
                 )}
               >
-                <p className="text-sm leading-relaxed">{message.content}</p>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                {message.attachments && message.attachments.length > 0 ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {message.attachments.map((attachment) => (
+                      <span
+                        key={`${message.id}-${attachment.name}`}
+                        className={cn(
+                          "rounded-full border px-2 py-1 text-[11px]",
+                          message.role === "assistant"
+                            ? "border-border/80 bg-background/70 text-foreground"
+                            : "border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground"
+                        )}
+                      >
+                        {attachment.name}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
                 <span className="mt-1 block text-xs opacity-70">{message.timestamp}</span>
               </div>
             </div>
           ))}
+          <div ref={messagesEndRef} />
         </CardContent>
 
         {messages.length === 1 && (
@@ -119,23 +224,87 @@ export function AIAssistantView() {
         )}
 
         <div className="border-t border-border p-4">
+          {attachments.length > 0 ? (
+            <div className="mb-3 flex flex-wrap gap-2">
+              {attachments.map((file) => (
+                <span
+                  key={`${file.name}-${file.lastModified}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs text-secondary-foreground"
+                >
+                  {file.name}
+                  <button
+                    type="button"
+                    className="rounded-full text-muted-foreground transition hover:text-foreground"
+                    onClick={() => handleRemoveAttachment(file.name)}
+                    aria-label={`Remove ${file.name}`}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          {attachments.length > 0 ? (
+            <p className="mb-3 text-xs text-muted-foreground">
+              Los archivos se adjuntan en la interfaz y hoy se envían al backend como referencia por nombre y tipo.
+            </p>
+          ) : null}
+
+          {error ? <p className="mb-3 text-sm text-destructive">{error}</p> : null}
+
           <form
             onSubmit={(event) => {
               event.preventDefault()
-              handleSend()
+              void handleSend()
             }}
-            className="flex gap-2"
+            className="space-y-3"
           >
-            <Input
-              placeholder="Ask about your experiments..."
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              className="flex-1 border-0 bg-secondary"
-              aria-label="Ask the AI assistant"
-            />
-            <Button type="submit" size="icon" disabled={!input.trim()}>
-              <Send className="h-4 w-4" />
-            </Button>
+            <div className="rounded-2xl border border-border bg-secondary/60 p-2 shadow-xs">
+              <Textarea
+                placeholder="Ask about your experiments..."
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+                className="min-h-24 resize-none border-0 bg-transparent px-2 py-2 shadow-none focus-visible:ring-0"
+                aria-label="Ask the AI assistant"
+              />
+              <div className="flex items-center justify-between gap-2 border-t border-border/60 px-1 pt-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*,.pdf,.csv,.txt,.doc,.docx"
+                    className="hidden"
+                    onChange={handleFilesSelected}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="rounded-full"
+                    onClick={() => fileInputRef.current?.click()}
+                    aria-label="Attach files"
+                  >
+                    <Paperclip className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={isListening ? "default" : "ghost"}
+                    size="icon-sm"
+                    className="rounded-full"
+                    onClick={handleToggleMicrophone}
+                    aria-label={isListening ? "Stop voice input" : "Start voice input"}
+                  >
+                    <Mic className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <Button type="submit" size="icon" disabled={!canSend || isSending} className="rounded-full">
+                  {isSending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
           </form>
         </div>
       </Card>

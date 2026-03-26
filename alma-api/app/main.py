@@ -1,72 +1,67 @@
 import os
-from openai import AzureOpenAI
 from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+#from router import route
+#from llm_service import call_gpt4o, call_nano
+from services.llm_service import call_gpt4o, call_nano
+from services.router import route
 
-# Cargar variables del archivo .env
 load_dotenv()
 
 app = FastAPI()
 
-# Permitir acceso desde frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins    =["*"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods    =["*"],
+    allow_headers    =["*"],
 )
 
-# Variables
-AZURE_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
-AZURE_API_KEY  = os.getenv("AZURE_OPENAI_KEY")
-DEPLOYMENT     = os.getenv("AZURE_DEPLOYMENT")
+SYSTEM_PROMPT_4    = os.getenv("SYSTEM_PROMPT_4")
+SYSTEM_PROMPT_NANO = os.getenv("SYSTEM_PROMPT_NANO")
 
-client = AzureOpenAI(
-    api_version   ="2024-12-01-preview",
-    azure_endpoint=AZURE_ENDPOINT,
-    api_key       =AZURE_API_KEY,
-)
 
-# Modelo de entrada
 class ChatRequest(BaseModel):
     message: str
+    files  : list[str] = []
 
-# Endpoint de salud
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
-# Endpoint principal
+def rag_fallback(query):
+    return f"[RAG NO IMPLEMENTADO] Consulta recibida: {query}"
+
+def multimodal_fallback():
+    return "[MULTIMODAL NO IMPLEMENTADO]"
+
 @app.post("/chat")
 async def chat(req: ChatRequest):
-
     try:
-        response = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Eres ALMA, el mejor asistente para labor científica. Siempre debes responder al usuario con texto claro."
-                },
-                {
-                    "role": "user",
-                    "content": req.message
-                }
-            ],
-            max_completion_tokens=16384,
-            model=DEPLOYMENT
-        )
+        route_type = route(req.message, req.files)
+        print("ROUTE:", route_type)
 
-        reply = response.choices[0].message.content
-        if not reply:
-            reply = "El modelo no devolvió una respuesta. Intenta nuevamente con otra pregunta."
+        if route_type == "simple":
+            reply = call_nano([
+                {"role": "system", "content": SYSTEM_PROMPT_NANO},
+                {"role": "user", "content"  : req.message}
+            ])
 
-        return {
-            "reply": reply
-        }
+        elif route_type == "rag":
+            reply = rag_fallback(req.message)
+
+        elif route_type == "multimodal":
+            reply = multimodal_fallback()
+
+        else:
+            reply = "[ROUTE DESCONOCIDA]"
+
+        return {"reply": reply}
 
     except Exception as e:
         print("ERROR:", str(e))
-        return {"error": str(e)}
+        return {"error": str(e), "type": "system_error"}

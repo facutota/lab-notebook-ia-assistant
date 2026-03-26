@@ -147,7 +147,7 @@ export function SettingsView() {
             <div className="space-y-0.5">
               <Label>Show Experiment Previews</Label>
               <p className="text-sm text-muted-foreground">
-                Display preview cards in the experiments list
+                Display preview cards inside each project workspace
               </p>
             </div>
             <Switch defaultChecked />

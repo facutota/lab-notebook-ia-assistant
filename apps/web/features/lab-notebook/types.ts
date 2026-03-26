@@ -9,6 +9,18 @@ export interface Experiment {
   description: string
 }
 
+export interface Project {
+  id: number
+  name: string
+  lead: string
+  status: ExperimentStatus
+  updatedAt: string
+  domain: string
+  tags: string[]
+  description: string
+  experiments: Experiment[]
+}
+
 export interface TimelineEvent {
   id: number
   action: string
@@ -33,22 +45,23 @@ export interface DashboardStat {
 export interface ActivityItem {
   id: number
   title: string
+  subtitle: string
   action: string
   time: string
   status: ExperimentStatus
 }
 
-export type AppView = "dashboard" | "experiments" | "ai-assistant" | "settings"
+export type AppView = "dashboard" | "projects" | "ai-assistant" | "settings"
 
 export interface NavItem {
   id: AppView | "new-experiment"
   label: string
-  icon: "dashboard" | "experiments" | "new" | "ai" | "settings"
+  icon: "dashboard" | "projects" | "new" | "ai" | "settings"
 }
 
-export interface NewExperimentInput {
+export interface NewProjectInput {
   name: string
   description: string
-  category: string
+  domain: string
   tags: string[]
 }

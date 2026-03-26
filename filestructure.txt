@@ -12,9 +12,23 @@
         |-- .gitignore
         |-- main.py
         |-- requirements.txt
+        |-- services
+            |-- embeddings.py
+            |-- llm_service.py
+            |-- multimodal_service.py
+            |-- rag_service.py
+            |-- router.py
+            |-- test_embeddings.py
+            |-- __init__.py
+            |-- __pycache__
+                |-- embeddings.cpython-314.pyc
+                |-- test_embeddings.cpython-314.pyc
+                |-- __init__.cpython-314.pyc
         |-- startup.txt
+        |-- __init__.py
         |-- __pycache__
             |-- main.cpython-314.pyc
+            |-- __init__.cpython-314.pyc
 |-- apps
     |-- web
         |-- .gitignore
@@ -32,6 +46,7 @@
                 |-- experiments-view.tsx
                 |-- mobile-sidebar.tsx
                 |-- new-experiment-modal.tsx
+                |-- project-detail-view.tsx
                 |-- settings-view.tsx
                 |-- sidebar.tsx
                 |-- status-badge.tsx
@@ -72,6 +87,11 @@
         |-- hooks
             |-- use-mobile.ts
         |-- lib
+            |-- browser
+                |-- speech-recognition.ts
+            |-- chat
+                |-- api.ts
+                |-- types.ts
             |-- utils.ts
         |-- next.config.ts
         |-- package-lock.json

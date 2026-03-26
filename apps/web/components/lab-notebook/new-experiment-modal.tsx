@@ -22,18 +22,18 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import type { NewExperimentInput } from "@/features/lab-notebook/types"
+import type { NewProjectInput } from "@/features/lab-notebook/types"
 
 interface NewExperimentModalProps {
   open: boolean
   onClose: () => void
-  onCreate: (input: NewExperimentInput) => void
+  onCreate: (input: NewProjectInput) => void
 }
 
 const newExperimentSchema = z.object({
-  name: z.string().trim().min(1, "Experiment name is required"),
+  name: z.string().trim().min(1, "Project name is required"),
   description: z.string().trim().min(1, "Description is required"),
-  category: z.string().trim().min(1, "Category is required"),
+  category: z.string().trim().min(1, "Domain is required"),
   tags: z.string().trim(),
 })
 
@@ -63,7 +63,7 @@ export function NewExperimentModal({ open, onClose, onCreate }: NewExperimentMod
     onCreate({
       name: values.name.trim(),
       description: values.description.trim(),
-      category: values.category,
+      domain: values.category,
       tags: values.tags
         .split(",")
         .map((tag) => tag.trim())
@@ -83,24 +83,24 @@ export function NewExperimentModal({ open, onClose, onCreate }: NewExperimentMod
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create New Experiment</DialogTitle>
+          <DialogTitle>Create New Project</DialogTitle>
           <DialogDescription>
-            Set up a new experiment to track your research progress.
+            Set up a new project to organize related experiments under one research goal.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleCreate)} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Experiment Name</Label>
-            <Input id="name" placeholder="e.g., Gene Expression Analysis" aria-invalid={Boolean(errors.name)} {...register("name")} />
+            <Label htmlFor="name">Project Name</Label>
+            <Input id="name" placeholder="e.g., Stem Cell Response Program" aria-invalid={Boolean(errors.name)} {...register("name")} />
             {errors.name ? <p className="text-sm text-destructive">{errors.name.message}</p> : null}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Research Objective</Label>
             <Textarea
               id="description"
-              placeholder="Describe the objectives and methodology..."
+              placeholder="Describe the project scope, hypotheses, and expected outcomes..."
               rows={4}
               aria-invalid={Boolean(errors.description)}
               {...register("description")}
@@ -110,7 +110,7 @@ export function NewExperimentModal({ open, onClose, onCreate }: NewExperimentMod
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">Domain</Label>
               <Select
                 value={selectedCategory}
                 onValueChange={(value) =>
@@ -118,7 +118,7 @@ export function NewExperimentModal({ open, onClose, onCreate }: NewExperimentMod
                 }
               >
                 <SelectTrigger id="category">
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder="Select domain" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="genetics">Genetics</SelectItem>
@@ -143,7 +143,7 @@ export function NewExperimentModal({ open, onClose, onCreate }: NewExperimentMod
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              Create Experiment
+              Create Project
             </Button>
           </DialogFooter>
         </form>
