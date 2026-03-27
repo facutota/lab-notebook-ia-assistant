@@ -1,14 +1,15 @@
+import os
+import io
 import base64
+import uuid
+from datetime import datetime
 from typing import List
 from fastapi import UploadFile
-from services.llm_service import call_gpt4o
 from pypdf import PdfReader
-import io
+from azure.storage.blob.aio import BlobServiceClient
+from services.llm_service import call_gpt4o
 
-
-def encode_file(file: UploadFile) -> str:
-    return base64.b64encode(file.file.read()).decode("utf-8")
-
+BLOB_CONTAINER = "contenedor-docs-alma"
 
 def extract_pdf_text(file_bytes: bytes) -> str:
     reader = PdfReader(io.BytesIO(file_bytes))
@@ -19,6 +20,24 @@ def extract_pdf_text(file_bytes: bytes) -> str:
             text += t + "\n"
     return text.strip()
 
+def encode_image_base64(file_bytes: bytes) -> str:
+    return base64.b64encode(file_bytes).decode("utf-8")
+
+async def upload_to_blob(file_bytes: bytes, filename: str, persistence: str) -> str:
+    conn_str = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+    if not conn_str:
+        raise Exception("AZURE_STORAGE_CONNECTION_STRING no está configurado en .env")
+
+    blob_service = BlobServiceClient.from_connection_string(conn_str)
+
+    folder = "uploads_temporales" if persistence == "temporary" else "uploads_persistentes"
+    safe_name = filename.replace(" ", "_")
+    blob_name = f"{folder}/{datetime.utcnow().strftime('%Y%m%d')}/{uuid.uuid4()}_{safe_name}"
+
+    blob_client = blob_service.get_blob_client(container=BLOB_CONTAINER, blob=blob_name)
+    await blob_client.upload_blob(file_bytes, overwrite=True)
+
+    return blob_name
 
 async def multimodal_answer(query: str, files: List[UploadFile], persistence: str) -> str:
     content = []
@@ -27,34 +46,54 @@ async def multimodal_answer(query: str, files: List[UploadFile], persistence: st
         content.append({"type": "text", "text": query})
 
     extracted_text = ""
+    stored_paths = []
 
     for file in files:
-        filename = file.filename.lower()
+        filename = file.filename or "unknown"
+        file_bytes = await file.read()
 
-        if filename.endswith((".png", ".jpg", ".jpeg", ".webp")):
-            base64_image = encode_file(file)
+        # Guardar en blob (siempre)
+        try:
+            blob_path = await upload_to_blob(file_bytes, filename, persistence)
+            stored_paths.append(blob_path)
+        except Exception as e:
+            stored_paths.append(f"[ERROR SUBIENDO {filename}: {str(e)}]")
+
+        lower = filename.lower()
+
+        # Imagen
+        if lower.endswith((".png", ".jpg", ".jpeg", ".webp")):
+            b64 = encode_image_base64(file_bytes)
             content.append({
                 "type": "image_url",
-                "image_url": {
-                    "url": f"data:image/png;base64,{base64_image}"
-                }
+                "image_url": {"url": f"data:image/png;base64,{b64}"}
             })
 
-        elif filename.endswith(".pdf"):
-            file_bytes = await file.read()
-            pdf_text = extract_pdf_text(file_bytes)
-            if pdf_text:
-                extracted_text += f"\n\n[PDF: {file.filename}]\n{pdf_text[:12000]}"
+        # PDF
+        elif lower.endswith(".pdf"):
+            text = extract_pdf_text(file_bytes)
+            if text:
+                extracted_text += f"\n\n[PDF: {filename}]\n{text[:12000]}"
 
-        elif filename.endswith(".txt"):
-            file_bytes = await file.read()
-            extracted_text += f"\n\n[TXT: {file.filename}]\n{file_bytes.decode('utf-8', errors='ignore')[:12000]}"
+        # TXT
+        elif lower.endswith(".txt"):
+            extracted_text += f"\n\n[TXT: {filename}]\n{file_bytes.decode('utf-8', errors='ignore')[:12000]}"
 
-    if extracted_text:
-        content.append({"type": "text", "text": f"Contenido adjunto extraído:\n{extracted_text}"})
+    if stored_paths:
+        extracted_text += "\n\nArchivos almacenados en Blob:\n" + "\n".join(stored_paths)
+
+    if extracted_text.strip():
+        content.append({"type": "text", "text": f"Contenido extraído:\n{extracted_text}"})
 
     messages = [
-        {"role": "system", "content": "Eres ALMA, un asistente científico. Analiza los adjuntos y responde con rigor."},
+        {
+            "role": "system",
+            "content": (
+                "Eres ALMA, un asistente científico. "
+                "Analiza los adjuntos y responde con rigor. "
+                "Si falta información, dilo explícitamente."
+            )
+        },
         {"role": "user", "content": content}
     ]
 

@@ -41,6 +41,20 @@ def rag_fallback(query):
 def multimodal_fallback():
     return "[MULTIMODAL NO IMPLEMENTADO]"
 
+@app.post("/chat_upload")
+async def chat_upload(
+    message: str = Form(...),
+    persistence: str = Form("temporary"),
+    files: Optional[List[UploadFile]] = File(None)
+):
+    try:
+        files = files or []
+        reply = await multimodal_answer(message, files, persistence)
+        return {"reply": reply}
+    except Exception as e:
+        print("ERROR UPLOAD:", str(e))
+        return {"error": str(e), "type": "system_error"}
+
 @app.post("/chat")
 async def chat(req: ChatRequest):
     try:
@@ -57,7 +71,7 @@ async def chat(req: ChatRequest):
             reply = rag_answer(req.message)
 
         elif route_type == "multimodal":
-            reply = multimodal_fallback()
+            reply = "Este endpoint no soporta archivos. Usa /chat_upload."
 
         else:
             reply = "[ROUTE DESCONOCIDA]"
