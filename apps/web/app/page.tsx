@@ -16,6 +16,7 @@ import { Sidebar } from "@/components/lab-notebook/sidebar"
 import { TopBar } from "@/components/lab-notebook/top-bar"
 import { buildDashboardStats, buildRecentActivity } from "@/features/lab-notebook/data"
 import { getMyProfile, loginWithPassword, updateMyProfile } from "@/lib/auth/api"
+import type { ChatExperimentContext } from "@/lib/chat/types"
 import {
   createExperiment,
   createProject,
@@ -70,6 +71,20 @@ export default function LabNotebookApp() {
     () => selectedProject?.experiments.find((experiment) => experiment.id === selectedExperimentId) ?? null,
     [selectedProject, selectedExperimentId]
   )
+  const selectedExperimentContext = useMemo<ChatExperimentContext | undefined>(() => {
+    if (!selectedProject || !selectedExperiment) {
+      return undefined
+    }
+
+    return {
+      experimentId: selectedExperiment.id,
+      experimentName: selectedExperiment.name,
+      projectId: selectedProject.id,
+      projectName: selectedProject.name,
+      description: selectedExperiment.description || selectedProject.description,
+      tags: Array.from(new Set([...selectedProject.tags, ...selectedExperiment.tags])),
+    }
+  }, [selectedExperiment, selectedProject])
   const dashboardStats = useMemo(() => buildDashboardStats(projects), [projects])
   const recentActivity = useMemo(() => buildRecentActivity(projects), [projects])
 
@@ -310,7 +325,7 @@ export default function LabNotebookApp() {
           </>
         )
       case "ai-assistant":
-        return <AIAssistantView />
+        return <AIAssistantView experimentContext={selectedExperimentContext} />
       case "settings":
         return (
           <SettingsView

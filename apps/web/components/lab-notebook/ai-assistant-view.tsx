@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { getSpeechRecognitionApi, getSpeechTranscript, type SpeechRecognitionInstance } from "@/lib/browser/speech-recognition"
 import { buildChatMessagePayload, formatChatTimestamp, sendChatMessage } from "@/lib/chat/api"
-import type { ChatMessage } from "@/lib/chat/types"
+import type { ChatExperimentContext, ChatMessage } from "@/lib/chat/types"
 import { cn } from "@/lib/utils"
 
 const initialMessages: ChatMessage[] = [
@@ -27,7 +27,11 @@ const suggestedPrompts = [
   { icon: Sparkles, text: "Analyze recent results" },
 ]
 
-export function AIAssistantView() {
+interface AIAssistantViewProps {
+  experimentContext?: ChatExperimentContext
+}
+
+export function AIAssistantView({ experimentContext }: AIAssistantViewProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
   const [input, setInput] = useState("")
   const [attachments, setAttachments] = useState<File[]>([])
@@ -111,7 +115,7 @@ export function AIAssistantView() {
       timestamp: formatChatTimestamp(),
       attachments: attachments.map((file) => ({ name: file.name, type: file.type })),
     }
-    const messagePayload = buildChatMessagePayload(input, attachments)
+    const messagePayload = buildChatMessagePayload(input, attachments, experimentContext)
 
     setMessages((currentMessages) => [...currentMessages, userMessage])
     setInput("")
@@ -154,6 +158,11 @@ export function AIAssistantView() {
           AI Assistant
         </h1>
         <p className="text-muted-foreground">Get AI-powered insights about your experiments</p>
+        {experimentContext ? (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Contexto activo: {experimentContext.projectName} / {experimentContext.experimentName}
+          </p>
+        ) : null}
       </div>
 
       <Card className="flex flex-1 flex-col overflow-hidden border-border/50 shadow-sm">
