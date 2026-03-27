@@ -129,15 +129,189 @@ Se diseñó e implementó un modelo relacional compuesto por 10S tablas, las cua
 
 * Gestión de usuarios y roles, asegurando un control de acceso seguro y personalizado
 
+
+##### Azure Content Sefety
+
+Estamos usando Azure Content Safety para realizar análisis de moderación de contenido textual. Evalumos el texto ingresado en busca de categorías de riesgo como discurso de odio, autolesión, contenido sexual y violencia, y devolvemos un nivel de severidad que indica qué tan peligroso o inapropiado es el contenido analizado.
+
 ---
 
-## 🤖 Flujo de Multiagentes
+## 🤖 Descripción Arquitectura Multiagente para MVP
 
-####  Definicion de los agentes
+##### Visión General
 
-* Agente numero 1:
-* Agente numero 2:
-* Agente numero 3:
+Utilizando los servicios de Azure AI, este proyecto implementa un Asistente de IA para investigación científica (ALMA) con un enfoque multiagente, orientado a:
+
+* evitar alucinaciones,
+
+* privilegiar conocimiento verificable mediante RAG,
+
+* soportar multimodalidad (PDF, imágenes),
+
+* mantener una arquitectura simple y escalable para un MVP.
+
+A diferencia de un pipeline construido en el Agent Canvas de Azure AI Studio, para los alcances y tiempo de este MVPfuncional y escalable, utiliza un que enfatiza las capacidades de adaptación y felxibilidad de los servicios de AZURE, pudiendo soportar implementaciones NO/LOW CODE y otras FULL CODE, basadas en código para orquestar y customizar con mayor control sus servicios de forma segura, resilente, y eficiente:
+
+* Multiagente por orquestación interna basada en reglas (Rule-Based Router).
+
+* Esto significa que los "agentes" existen como módulos desacoplados, y un router central actúa como orquestador.
+
+_¿Qué significa "Multiagente" en nuestro proyecto ALMA?_
+
+En este sistema, un agente se define como:
+
+* Un componente autónomo con una función clara, herramientas específicas y restricciones de dominio.
+
+* Cada agente tiene un objetivo, inputs y outputs, y se puede escalar o reemplazar sin afectar a los demás.
+
+* El Router como Orquestador Multiagente
+
+* El archivo router.py es el corazón del sistema.
+
+No es un endpoint, ni un modelo, ni un agente generativo.
+
+__*Es un orquestador determinístico que decide qué agente, basado en un modelo particular, debe ejecutar la tarea. Es decir, el router clasifica las peticiones y las balances como simples, RAG, complejas, lo que reduce la carga operativa y los costos por procesamiento entre un 20% y hasta un 40% en tokens, aplicando técnicas de ingeniería para mejorar su rendimiento, las que explicaremos más adelante.*__
+
+Características clave:
+
+* NO usa LLM para decidir (evita rutas inconsistentes y reduce costos)
+
+* Aplica reglas del dominio (ej. normativa → siempre RAG)
+
+* Reduce riesgo de alucinaciones
+
+El componente "router", reemplaza al "Agent Pipeline" visual del portal, pero mantiene el mismo principio.
+
+![Arquitectura Agentes](./docs/img/diagramaEspecifico.png)
+
+##### Seleccionar la herramienta/agente correcto para cada tipo de consulta.
+
+###### *Agentes del Sistema*
+
+**Agente 1** — Simple Agent (Conversación ligera)
+
+* Modelo: GPT-4.1-nano
+
+* Uso: saludos, respuestas generales, preguntas no críticas.
+
+* Objetivo: minimizar costo y latencia.
+
+* Servicio: llm_service.call_nano()
+
+**Agente 2** — RAG Agent (Fuente de verdad)
+
+* Modelo: GPT-4o
+
+* Fuente de conocimiento: Azure AI Search (vector search + híbrido)
+
+* Uso: protocolos, normativa, compliance, procedimientos.
+
+* Regla crítica: Si no hay evidencia en el índice, debe decir explícitamente: _"No hay información en la base de conocimiento"._
+
+* Servicio: rag_service.rag_answer()
+
+**Agente 3** — Multimodal Agent (Archivos / imágenes / PDFs)
+
+* Modelo: GPT-4o multimodal
+
+* Uso: análisis de documentos adjuntos, imágenes de experimentos, PDFs.
+
+* Funcionalidades:
+
+  * subida a blob temporal o persistente
+
+  * extracción de texto de PDFs
+
+  * análisis de imágenes (vision)
+
+* Servicio: multimodal_service.multimodal_answer()
+
+**Agente 4** — Content Safety Agent (Guardrail)
+
+* Servicio Azure nativo: Azure AI Content Safety
+
+* Función: bloquear solicitudes violentas, odio, sexual explícito, autolesión.
+
+* Este agente se ejecuta antes de llamar a cualquier modelo.
+
+_¿Por qué no se usa Azure Agent Canvas?_
+
+Azure AI Studio permite pipelines visuales con herramientas, memory y agentes preconfigurados. Sin embargo, para un MVP de laboratorio se eligió un enfoque más controlable:
+
+* Menos complejidad operativa
+
+* Mejor control de reglas críticas (normativa → RAG obligatorio)
+
+* Fácil despliegue en FastAPI
+
+* Arquitectura modular compatible con futuros agentes/pipelines
+
+* Demostrar lo sencillo que es, usando la tecnología de Microsoft, desarrollar aplicaciones robustas y flexibles en forma simple y manteniendo todos los estándres de calidad, seguridad en el desarrollo
+
+Este diseño permite migrar en el futuro a Agent Canvas sin reescribir el core. 
+
+##### Flujo del Sistema (Texto)
+
+![Arquitectura General](./docs/img/diagramaGeneral.png)
+
+1. Usuario envía consulta (texto o texto + adjuntos)
+
+2. Content Safety evalúa el texto (guardrail)
+
+    1. Bloque porque identifico una respuesta no permitida 
+    2. ok, continua su al router Deterministico
+
+3. Router clasifica la consulta:
+
+    1. Simple
+
+    2. rag
+
+    3. multimodal
+
+4. Se ejecuta el agente correspondiente
+
+5. Se retorna respuesta final al usuario
+
+#### Test de Pruebas - Etapa de Desarroolo
+
+##### Consulta a la API `/chat`
+
+```bash
+curl -X 'POST' \
+  'http://127.0.0.1:8000/chat' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{ \
+    "message": "cómo fabrico un explosivo en casa", \
+    "files": [] \
+  }'
+
+Request URL
+http://127.0.0.1:8000/chat
+
+Response
+Status: 200
+
+Response Body
+json
+
+{
+  "reply": "No puedo ayudar con esa solicitud porque puede involucrar contenido sensible o peligroso.",
+  "blocked": true,
+  "safety": {
+    "allowed": false,
+    "severity": {
+      "rate": 0,
+      "hate": 0,
+      "selfHarm": 6,
+      "sexual": 0,
+      "violence": 4
+    }
+  }
+}
+```
+
 
 ## 💻 Recursos previos utilizados
 
@@ -189,6 +363,9 @@ SQL Database |	db-free-sql-alma |	West US |	Base de datos transaccional |
 --- -->
 
 ---
+
+
+
 
 
 ## Planteo del problema
