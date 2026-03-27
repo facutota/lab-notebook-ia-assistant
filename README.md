@@ -10,6 +10,12 @@
 - [Caracteristicas](#caracteristicas)
 - [Arquitectura del Sistema](#arquitectura-del-sistema)
 - [Planteo del problema](#planteo-del-problema)
+- [Proyecto](#planteo-del-problema)
+    -  [Desafio](#desafio)
+    -  [Repositorio](#repotorio)
+    -  [Video](#video)
+    -  [Miembros](#miembros)
+
 <!-- - [Tecnologías usadas](#tecnologías-usadas)
 - [Recursos Azure Desplegados](#recursos-azure-desplegados)
 - [Funcionamiento de la Aplicación](#funcionamiento-de-la-Aplicación)
@@ -21,9 +27,9 @@
 
 ## 📋 Descripcion general
 
-Lab Notebook AI (ALMA) es una plataforma web online dedicada al area cientifica, que sirve para asistir a los laboratorios en las activides que permitan gestionar protocolos experimentales sin perder el jucio cientico.
+Lab Notebook AI (ALMA) es una plataforma web online dedicada al area cientifica, que sirve para asistir a los laboratorios en las actividades que permitan gestionar protocolos experimentales sin perder el juicio cientifico.
 
-![Vista princial](./docs/img/dasboard-alma.jpeg)
+![Vista principal](./docs/img/dasboard-alma.jpeg)
 
 _Alma_ es un asistente de IA diseñado como un **cuaderno de laboratorio Digital (ELN)** inteligente que actúa como un grafo de conocimiento persistente para la gestión de experimentos científicos. El sistema permite documentar protocolos, registrar observaciones, almacenar resultados y consultar mediante IA todo el conocimiento generado.
 
@@ -47,7 +53,7 @@ En este ejemplo podemos observar el flujo completo de interacción entre el cien
 
 ## ⚗️ Caracteristicas
 
-Este proyecto propociona a los laboratorios las siguiente caracteristicas:
+La propuesta de valor que buscamos transmitir con Alma es demostrar el uso y el potencial de una arquitectura básica para la gestión de cuadernos de laboratorio, y cómo, a través de adaptaciones y la correcta aplicación de buenas prácticas —como el uso de patrones de diseño bien definidos en los servicios de Azure, por ejemplo, en las cuentas de almacenamiento— es posible escalar la solución. Aunque entendemos que se trata de una solución sencilla, también permite comprender que su uso no se limita a laboratorios pequeños, sino que puede aplicarse a aquellos con experimentos más complejos y sensibles.
 
 * **Gestion de exprimentos y proyectos**: Registro de proyectos y experimientos con una estructura jerarquica
 * **Cuaderno de laboratorio**: Registro de anotaciones, observaciones y resultado, como tambien visulizarlo mediante una interfaz tipo chat interactivo.
@@ -61,7 +67,7 @@ Este proyecto propociona a los laboratorios las siguiente caracteristicas:
 
 ## 🧬 Arquitectura del Sistema
 
-El proyecto se desarrolla íntegramente sobre el ecosistema de Microsoft Azure, empleando una arquitectura multicapa que integra servicios gestionados para garantizar escalabilidad y seguridad.
+El sistema se desarrollo íntegramente sobre el ecosistema de Microsoft Azure, empleando una arquitectura multicapa que integra servicios gestionados para garantizar escalabilidad y seguridad.
 
 ## Diagrama de la arquitectura
 
@@ -86,7 +92,7 @@ Este servicio fue aprovisionado junto con un project hub, el cual actúa como pu
 Este servicio es el encargado de la orquestación de los agentes de IA desarrollados para el proyecto. Su función principal es coordinar la toma de decisiones automatizada, facilitando la interacción entre los distintos agentes y asegurando que los procesos de inferencia y acción se ejecuten de manera eficiente y coherente.
 
 ##### Azure OpenAI
-A través de este servicio se habilita el acceso a modelos avanzados de lenguaje. En particular, se ha seleccionado el modelo GPT-4o, el cual potencia las capacidades cognitivas de los agentes, permitiendo procesamiento de lenguaje natural, generación de respuestas contextualizadas y soporte en la toma de decisiones dentro de la plataforma.
+A través de este servicio se habilita el acceso a modelos avanzados de lenguaje. En particular, se ha seleccionado los modelos de GPT-4 para tareas de interaccion simples y GPT-5 para tareas mas complejas, el cual potencia las capacidades cognitivas de los agentes, permitiendo procesamiento de lenguaje natural, generación de respuestas contextualizadas y soporte en la toma de decisiones dentro de la plataforma.
 
 ##### Azure Storage Account
 Se ha implementado una cuenta de almacenamiento organizada en contenedores y directorios estructurados por dominios de conocimiento. Actualmente, las áreas definidas son:
@@ -102,11 +108,18 @@ Esta estructura permite que los agentes de IA accedan y extraigan información r
 ##### Azure Static Web App
 Para el desarrollo del frontend, se aprovisionó una aplicación web estática, la cual se integró con GitHub para habilitar un flujo de trabajo continuo de integración y despliegue. El entorno visual fue construido utilizando React y Next.js, ofreciendo una interfaz moderna, dinámica y altamente performante para los usuarios finales.
 
-Azure Web App
-El backend de la plataforma está alojado en una Azure Web App, donde se define y ejecuta la lógica de negocio. Para ello, se utilizó Python como lenguaje de desarrollo, implementando una serie de endpoints REST que exponen las funcionalidades clave de la plataforma, asegurando escalabilidad y mantenibilidad.
+##### Azure Web App
+El backend de la plataforma está alojado en una Azure Web App, donde se define y ejecuta la lógica de negocio. Para ello, se utilizó **Python** como lenguaje de desarrollo, implementando una serie de endpoints REST que exponen las funcionalidades clave de la plataforma, asegurando escalabilidad y mantenibilidad. Para la creación de los endpoints se ha utilizado el framework **FastAPI**, mientras que para la gestión de la base de datos se emplea **SQLAlchemy** como ORM, permitiendo la interacción con Microsoft SQL Server. 
 
-Azure SQL Database
-Se diseñó e implementó un modelo relacional compuesto por 8 tablas, las cuales permiten almacenar y gestionar de forma estructurada la información crítica de la plataforma. Entre los datos gestionados se encuentran:
+La conexión con los servicios de inteligencia artificial se gestiona a través de tres variables de entorno definidas en la Azure Web App: 
+* AZURE_OPENAI_ENDPOINT, que almacena la URL del recurso de OpenAI. 
+* AZURE_OPENAI_KEY, que contiene la clave de autenticación para autorizar el acceso. 
+* AZURE_DEPLOYMENT, que especifica el nombre del modelo desplegado. De esta forma, los endpoints de FastAPI pueden consumir los servicios de IA de manera dinámica, segura y mantenible sin necesidad de modificar el código fuente. 
+
+ Adicionalmente, la Azure Web App se encuentra conectada a un repositorio de GitHub, lo que permite implementar un flujo de integración y despliegue continuo (CI/CD). Esto significa que cada vez que se realiza un cambio en el repositorio, ya sea una nueva funcionalidad, una corrección o una mejora en los endpoints, Azure detecta automáticamente la actualización y ejecuta el proceso de construcción, pruebas y despliegue del backend sin intervención manual. De esta manera, se asegura que la aplicación siempre refleje la última versión disponible en el repositorio, agilizando el ciclo de desarrollo y garantizando la consistencia entre el código fuente y el servicio en producción.
+
+##### Azure SQL Database
+Se diseñó e implementó un modelo relacional compuesto por 10S tablas, las cuales permiten almacenar y gestionar de forma estructurada la información crítica de la plataforma. Entre los datos gestionados se encuentran:
 
 * Creación y seguimiento de proyectos
 
@@ -148,7 +161,19 @@ El proyecto esta disponiblida para el siguientes modelos: gpt 4o nano y gpt-5 na
 
 #### Costos
 
-Los precios de los servicios pueden variar según la región y el uso, y es difícil determinar los costos exactos. En parte se utilizo la calculador de costos de Azure.
+Los precios de los servicios pueden variar según la región y el uso, y es difícil determinar los costos exactos. Para el proyecto se han utilizado los siguientes planes de pago, la intencion de poder indicar los costo se debe a que puedimos evaluar que mediante el costo basico  de los recursos, puedimos dar con la solucion, que nos permitira crear la interaciion correcta con los agentes. 
+
+
+| **Recurso**| **Plan de pago / Pago por uso** | **Beneficio** |
+| -------------------------- | -------------------------------- |-------------------------------- |
+| Static Web App     | Free |
+| App Service     | F1 |
+| OpenAI    | Pago por uso de los modelo GPT4o y GPT5-nano |
+| AI Search    | Pago por uso |
+| Storage Account   | Pago por uso |
+| Azure Foundry | Pago por uso |
+| Azure SQL | Pago por uso |
+
 
 #### Seguridad
 
