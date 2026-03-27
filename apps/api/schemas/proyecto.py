@@ -1,17 +1,23 @@
-from pydantic import BaseModel, ConfigDict, field_validator
-from typing import Optional
-from datetime import datetime
+import json
 import uuid
+from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class CrearProyecto(BaseModel):
     nombre: str
     descripcion: str
+    dominio: str
+    tags: list[str] = Field(default_factory=list)
 
 
 class ActualizarProyecto(BaseModel):
     nombre: Optional[str] = None
     descripcion: Optional[str] = None
+    dominio: Optional[str] = None
+    tags: Optional[list[str]] = None
     habilitado: Optional[bool] = None
 
 
@@ -33,6 +39,8 @@ class ProyectoResponse(BaseModel):
     id: str
     nombre: str
     descripcion: str
+    dominio: str
+    tags: list[str]
     usuario_id: str
     habilitado: bool
     fecha_creacion: datetime
@@ -43,3 +51,16 @@ class ProyectoResponse(BaseModel):
     @classmethod
     def parse_uuid(cls, v):
         return str(v) if isinstance(v, uuid.UUID) else v
+
+    @field_validator('tags', mode='before')
+    @classmethod
+    def parse_tags(cls, v):
+        if isinstance(v, list):
+            return v
+        if isinstance(v, str):
+            try:
+                parsed = json.loads(v)
+                return parsed if isinstance(parsed, list) else []
+            except json.JSONDecodeError:
+                return []
+        return []

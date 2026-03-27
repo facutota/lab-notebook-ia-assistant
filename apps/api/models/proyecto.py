@@ -18,6 +18,8 @@ class Proyecto(Base):
     )
     nombre: Mapped[str] = mapped_column(String(255), nullable=False, name="Nombre")
     descripcion: Mapped[str] = mapped_column(Text, nullable=False, name="Descripcion")
+    dominio: Mapped[str] = mapped_column(String(255), nullable=False, default="", name="Dominio")
+    tags: Mapped[str] = mapped_column(Text, nullable=False, default="[]", name="Tags")
     usuario_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Usuarios.Id"), name="UsuarioId")
     habilitado: Mapped[bool] = mapped_column(Boolean, default=True, name="Habilitado")
     fecha_creacion: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, name="FechaCreacion")

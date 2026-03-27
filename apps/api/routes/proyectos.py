@@ -1,4 +1,5 @@
 import uuid
+import json
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, status, HTTPException
@@ -13,7 +14,7 @@ from dependencies.auth import get_current_user
 router = APIRouter(prefix="/proyectos", tags=["proyectos"])
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=ProyectoResponse)
 async def crear_proyecto(
         proyecto_data: CrearProyecto,
         db: Session = Depends(get_db),
@@ -30,12 +31,14 @@ async def crear_proyecto(
     proyecto = Proyecto(
         nombre=proyecto_data.nombre,
         descripcion=proyecto_data.descripcion,
+        dominio=proyecto_data.dominio,
+        tags=json.dumps(proyecto_data.tags),
         usuario_id=current_user.id
     )
     db.add(proyecto)
     db.commit()
     db.refresh(proyecto)
-    return proyecto
+    return db.query(Proyecto).options(joinedload(Proyecto.usuario)).filter(Proyecto.id == proyecto.id).first()
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=list[ProyectoResponse])
@@ -56,7 +59,7 @@ async def obtener_proyecto(
 ):
     proyecto = db.query(Proyecto).options(
         joinedload(Proyecto.usuario)
-    ).filter(Proyecto.id == id and Proyecto.usuario_id == current_user.id).first()
+    ).filter(Proyecto.id == id, Proyecto.usuario_id == current_user.id).first()
     if not proyecto:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -79,7 +82,7 @@ async def actualizar_proyecto(
 ):
     proyecto = db.query(Proyecto).options(
         joinedload(Proyecto.usuario)
-    ).filter(Proyecto.id == id and Proyecto.usuario_id == current_user.id).first()
+    ).filter(Proyecto.id == id, Proyecto.usuario_id == current_user.id).first()
     if not proyecto:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -94,6 +97,10 @@ async def actualizar_proyecto(
         proyecto.nombre = proyecto_data.nombre
     if proyecto_data.descripcion is not None:
         proyecto.descripcion = proyecto_data.descripcion
+    if proyecto_data.dominio is not None:
+        proyecto.dominio = proyecto_data.dominio
+    if proyecto_data.tags is not None:
+        proyecto.tags = json.dumps(proyecto_data.tags)
     if proyecto_data.habilitado is not None:
         proyecto.habilitado = proyecto_data.habilitado
 
@@ -110,7 +117,7 @@ async def eliminar_proyecto(
         db: Session = Depends(get_db),
         current_user: Usuario = Depends(get_current_user),
 ):
-    proyecto = db.query(Proyecto).filter(Proyecto.id == id and Proyecto.usuario_id == current_user.id).first()
+    proyecto = db.query(Proyecto).filter(Proyecto.id == id, Proyecto.usuario_id == current_user.id).first()
     if not proyecto:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

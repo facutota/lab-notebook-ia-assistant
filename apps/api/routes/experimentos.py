@@ -34,6 +34,11 @@ async def crear_experimento(
             status_code=status.HTTP_409_CONFLICT,
             detail="El proyecto está deshabilitado"
         )
+    if proyecto.usuario_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes acceso a este proyecto"
+        )
 
     categoria = db.query(CategoriaExperimento).filter(CategoriaExperimento.id == data.categoria_experimento_id).first()
     if not categoria:
@@ -55,6 +60,14 @@ async def crear_experimento(
     db.commit()
     db.refresh(experimento)
     return experimento
+
+
+@router.get("/categorias", status_code=status.HTTP_200_OK)
+async def listar_categorias_experimento(
+        db: Session = Depends(get_db),
+        current_user: Usuario = Depends(get_current_user),
+):
+    return db.query(CategoriaExperimento).order_by(CategoriaExperimento.id.asc()).all()
 
 
 @router.get("/proyecto/{id}", status_code=status.HTTP_200_OK)
