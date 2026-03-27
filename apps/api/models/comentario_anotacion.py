@@ -18,7 +18,7 @@ class ComentarioAnotacion(Base):
         name="Id"
     )
     comentario: Mapped[str] = mapped_column(Text, nullable=False, name="Comentario")
-    fechaCreacion: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, name="FechaCreacion" )
+    fecha_creacion: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, name="FechaCreacion")
     anotacion_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Anotaciones.Id"), nullable=False, name="AnotacionId")
     usuario_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("Usuarios.Id"),

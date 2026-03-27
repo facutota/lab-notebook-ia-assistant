@@ -8,6 +8,17 @@ API REST construida con FastAPI y SQLAlchemy para Microsoft SQL Server.
 - ODBC Driver 17 for SQL Server
 - SQL Server (local o remoto)
 
+### Dependencias del sistema en Ubuntu 22.04
+
+Antes de usar `pyodbc`, instala `unixODBC`:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y unixodbc unixodbc-dev
+```
+
+Si `DATABASE_URL` usa SQL Server con `driver=ODBC+Driver+17+for+SQL+Server` o `driver=ODBC+Driver+18+for+SQL+Server`, tambien necesitas instalar el driver de Microsoft para SQL Server. Si instalas la version 18, recuerda actualizar `DATABASE_URL` para que el nombre del driver coincida exactamente.
+
 ## Instalación
 
 ### 1. Clonar el repositorio

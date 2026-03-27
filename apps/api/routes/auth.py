@@ -16,7 +16,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Any:
     user = db.query(Usuario).filter(Usuario.email == form_data.username).first()
-    if not user or not verify_password(form_data.password.strip(), user.password_hash.strip()):
+    if not user or not user.password_hash or not verify_password(form_data.password.strip(), user.password_hash.strip()):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -76,4 +76,3 @@ async def refresh_token(refresh_token: str = Body(embed=True), db: Session = Dep
         "access_token": access_token,
         "refresh_token": new_refresh_token,
     }
-
