@@ -2,7 +2,7 @@ import os
 import io
 import base64
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 from fastapi import UploadFile
 from pypdf import PdfReader
@@ -30,9 +30,9 @@ async def upload_to_blob(file_bytes: bytes, filename: str, persistence: str) -> 
 
     blob_service = BlobServiceClient.from_connection_string(conn_str)
 
-    folder = "uploads_temporales" if persistence == "temporary" else "uploads_persistentes"
+    folder    = "uploads_temporales" if persistence == "temporary" else "uploads_persistentes"
     safe_name = filename.replace(" ", "_")
-    blob_name = f"{folder}/{datetime.utcnow().strftime('%Y%m%d')}/{uuid.uuid4()}_{safe_name}"
+    blob_name = f"{folder}/{datetime.now(timezone.utc).strftime('%Y%m%d')}/{uuid.uuid4()}_{safe_name}"
 
     blob_client = blob_service.get_blob_client(container=BLOB_CONTAINER, blob=blob_name)
     await blob_client.upload_blob(file_bytes, overwrite=True)
@@ -46,10 +46,10 @@ async def multimodal_answer(query: str, files: List[UploadFile], persistence: st
         content.append({"type": "text", "text": query})
 
     extracted_text = ""
-    stored_paths = []
+    stored_paths   = []
 
     for file in files:
-        filename = file.filename or "unknown"
+        filename   = file.filename or "unknown"
         file_bytes = await file.read()
 
         # Guardar en blob (siempre)
@@ -97,4 +97,16 @@ async def multimodal_answer(query: str, files: List[UploadFile], persistence: st
         {"role": "user", "content": content}
     ]
 
-    return call_gpt4o(messages)
+    #return call_gpt4o(messages)
+    reply = call_gpt4o(messages)
+
+    # Guardar el insight si es persistente
+    if persistence == "persistent":
+        try:
+            insights_filename = f"insights_{uuid.uuid4()}.txt"
+            await upload_to_blob(reply.encode("utf-8"), insights_filename, persistence)
+            print("INSIGHTS GUARDADOS:", insights_filename)
+        except Exception as e:
+            print("ERROR GUARDANDO INSIGHTS:", str(e))
+
+    return reply
