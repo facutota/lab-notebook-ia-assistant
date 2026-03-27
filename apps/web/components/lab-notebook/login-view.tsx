@@ -41,7 +41,7 @@ export function LoginView({ onSubmit }: LoginViewProps) {
             </div>
             <div>
               <CardTitle>Ingresar a ALMA</CardTitle>
-              <CardDescription>Conectá el frontend con la API de dominio usando tu usuario.</CardDescription>
+              <CardDescription>ALMA, la solucion para gestionar y acelerar tus experimentos.</CardDescription>
             </div>
           </div>
         </CardHeader>

@@ -9,7 +9,7 @@ import type {
 
 export const initialProjects: Project[] = [
   {
-    id: 1,
+    id: "1",
     name: "Stem Cell Response Program",
     lead: "Dr. Jane Doe",
     status: "active",
@@ -19,7 +19,7 @@ export const initialProjects: Project[] = [
     description: "Longitudinal project focused on how stem cells respond to nutrient and stress changes.",
     experiments: [
       {
-        id: 101,
+        id: "101",
         name: "Gene Expression Analysis",
         status: "completed",
         date: "Mar 15, 2024",
@@ -27,7 +27,7 @@ export const initialProjects: Project[] = [
         description: "Analyzing gene expression patterns in stem cells under various conditions.",
       },
       {
-        id: 102,
+        id: "102",
         name: "Cell Culture Growth",
         status: "active",
         date: "Mar 12, 2024",
@@ -37,7 +37,7 @@ export const initialProjects: Project[] = [
     ],
   },
   {
-    id: 2,
+    id: "2",
     name: "Protein Behavior Initiative",
     lead: "Dr. Emily Carter",
     status: "active",
@@ -47,7 +47,7 @@ export const initialProjects: Project[] = [
     description: "Program exploring protein folding and enzyme kinetics across simulated and wet-lab setups.",
     experiments: [
       {
-        id: 201,
+        id: "201",
         name: "Protein Folding Simulation",
         status: "active",
         date: "Mar 14, 2024",
@@ -55,7 +55,7 @@ export const initialProjects: Project[] = [
         description: "Simulating protein folding dynamics using molecular dynamics.",
       },
       {
-        id: 202,
+        id: "202",
         name: "Enzyme Kinetics Study",
         status: "pending",
         date: "Mar 8, 2024",
@@ -65,7 +65,7 @@ export const initialProjects: Project[] = [
     ],
   },
   {
-    id: 3,
+    id: "3",
     name: "Resistance and Safety Validation",
     lead: "Dr. Miguel Alvarez",
     status: "failed",
@@ -75,7 +75,7 @@ export const initialProjects: Project[] = [
     description: "Project validating bacterial resistance profiles and drug interaction safety envelopes.",
     experiments: [
       {
-        id: 301,
+        id: "301",
         name: "Drug Interaction Test",
         status: "failed",
         date: "Mar 10, 2024",
@@ -83,7 +83,7 @@ export const initialProjects: Project[] = [
         description: "Testing drug interactions between compound A and compound B.",
       },
       {
-        id: 302,
+        id: "302",
         name: "Bacterial Resistance Analysis",
         status: "completed",
         date: "Mar 5, 2024",
@@ -96,7 +96,7 @@ export const initialProjects: Project[] = [
 
 export const recentActivity: ActivityItem[] = [
   {
-    id: 1,
+    id: "1",
     title: "Stem Cell Response Program",
     subtitle: "Gene Expression Analysis",
     action: "Results updated",
@@ -104,7 +104,7 @@ export const recentActivity: ActivityItem[] = [
     status: "completed",
   },
   {
-    id: 2,
+    id: "2",
     title: "Protein Behavior Initiative",
     subtitle: "Protein Folding Simulation",
     action: "AI analysis requested",
@@ -112,7 +112,7 @@ export const recentActivity: ActivityItem[] = [
     status: "active",
   },
   {
-    id: 3,
+    id: "3",
     title: "Stem Cell Response Program",
     subtitle: "Cell Culture Growth",
     action: "New notes added",
@@ -120,7 +120,7 @@ export const recentActivity: ActivityItem[] = [
     status: "active",
   },
   {
-    id: 4,
+    id: "4",
     title: "Resistance and Safety Validation",
     subtitle: "Drug Interaction Test",
     action: "Experiment failed",
@@ -128,6 +128,21 @@ export const recentActivity: ActivityItem[] = [
     status: "failed",
   },
 ]
+
+export function buildRecentActivity(projects: Project[]): ActivityItem[] {
+  return projects
+    .flatMap((project) =>
+      project.experiments.map((experiment) => ({
+        id: `${project.id}-${experiment.id}`,
+        title: project.name,
+        subtitle: experiment.name,
+        action: "Experiment updated",
+        time: experiment.date,
+        status: experiment.status,
+      }))
+    )
+    .slice(0, 4)
+}
 
 export function flattenExperiments(projects: Project[]): Experiment[] {
   return projects.flatMap((project) => project.experiments)
