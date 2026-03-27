@@ -377,7 +377,7 @@ Los precios de los servicios pueden variar según la región y el uso, y es dif�
 
 #### Seguridad
 
-La Azure Static Web App se comunica de forma segura con la Azure Web App mediante conexiones autenticadas, mientras que el acceso a Azure SQL, Storage Account y Azure AI Search se controla a través de firewalls, identidades gestionadas y claves de acceso que limitan qué servicios pueden interactuar entre sí. Azure OpenAI y Azure AI Agent operan con claves privadas y aislamiento de red por defecto, y Azure Content Safety añade una capa de filtrado para prevenir usos indebidos. En conjunto, la seguridad sin modificaciones descansa en el aislamiento de recursos, la autenticación integrada y los controles de acceso propios de la plataforma Azure, protegiendo los datos y la comunicación entre los componentes.
+En nuestra arquitectura Azure Static Web App se comunica de forma segura con la Azure Web App mediante conexiones autenticadas, mientras que el acceso a Azure SQL, Storage Account y Azure AI Search se controla a través de firewalls, identidades gestionadas y claves de acceso que limitan qué servicios pueden interactuar entre sí. Azure OpenAI y Azure AI Agent operan con claves privadas y aislamiento de red por defecto, y Azure Content Safety añade una capa de filtrado para prevenir usos indebidos. En conjunto, la seguridad sin modificaciones descansa en el aislamiento de recursos, la autenticación integrada y los controles de acceso propios de la plataforma Azure, protegiendo los datos y la comunicación entre los componentes.
 
 
 ---
