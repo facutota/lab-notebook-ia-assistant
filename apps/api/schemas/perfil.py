@@ -1,32 +1,24 @@
 from datetime import datetime
+from typing import List, Optional
 import uuid
-
 from pydantic import BaseModel
-from typing import Optional
+
+from schemas.rol import RolResponse
 
 
-class UsuarioResponse(BaseModel):
-    id: str
-    nombre_completo: str
-
-    class Config:
-        from_attributes = True
-
-
-class UsuarioAdminResponse(BaseModel):
+class PerfilResponse(BaseModel):
     id: uuid.UUID
-    nombre_completo: str
     email: str
+    nombre_completo: str
     usa_proveedor: bool
-    habilitado: bool
     fecha_creacion: datetime
-    fecha_modificacion: Optional[datetime] = None
+    fecha_modificacion: datetime
+    roles: List[RolResponse]
 
     class Config:
         from_attributes = True
 
-
-class ActualizarUsuarioAdmin(BaseModel):
+class ActualizarPerfil(BaseModel):
     email: Optional[str] = None
     nombre_completo: Optional[str] = None
     usa_proveedor: Optional[bool] = None

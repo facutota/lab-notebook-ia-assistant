@@ -8,7 +8,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
 import models
-from routes import proyectos, auth, experimentos, anotaciones, comentarios, health
+from routes import proyectos, auth, experimentos, anotaciones, comentarios, health, perfil
+from routes.admin import admin_proyectos, admin_usuarios, admin_experimentos, admin_anotaciones
 
 
 @asynccontextmanager
@@ -30,9 +31,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(proyectos.router)
-app.include_router(experimentos.router)
 app.include_router(auth.router)
+app.include_router(admin_anotaciones.router)
+app.include_router(admin_experimentos.router)
+app.include_router(admin_usuarios.router)
+app.include_router(admin_proyectos.router)
 app.include_router(anotaciones.router)
 app.include_router(comentarios.router)
+app.include_router(experimentos.router)
 app.include_router(health.router)
+app.include_router(proyectos.router)
+app.include_router(perfil.router)
