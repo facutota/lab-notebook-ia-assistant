@@ -22367,7 +22367,6 @@
             |-- main.cpython-314.pyc
             |-- __init__.cpython-312.pyc
             |-- __init__.cpython-314.pyc
-    |-- requirements.txt
 |-- apps
     |-- web
         |-- .gitignore
