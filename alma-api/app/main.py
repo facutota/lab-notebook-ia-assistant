@@ -3,9 +3,9 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from app.services.llm_service import call_nano
-from app.services.router import route
-from app.services.rag_service import rag_answer
+from services.llm_service import call_nano
+from services.router import route
+from services.rag_service import rag_answer
 
 load_dotenv()
 

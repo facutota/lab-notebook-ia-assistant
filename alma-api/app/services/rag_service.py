@@ -1,8 +1,8 @@
 import os
 from openai import AzureOpenAI
-from app.services.llm_service import call_gpt4o
-from app.services.embeddings import get_embedding
-from app.services.prompt_service import load_prompt
+from services.llm_service import call_gpt4o
+from services.embeddings import get_embedding
+from services.prompt_service import load_prompt
 from azure.search.documents import SearchClient
 from azure.core.credentials import AzureKeyCredential
 

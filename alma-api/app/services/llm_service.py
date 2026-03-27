@@ -1,4 +1,4 @@
-from app.services.prompt_service import load_prompt
+from services.prompt_service import load_prompt
 import openai
 from dotenv import load_dotenv
 import os
