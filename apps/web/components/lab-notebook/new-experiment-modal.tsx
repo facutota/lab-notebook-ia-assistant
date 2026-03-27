@@ -1,7 +1,8 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useWatch } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
@@ -22,26 +23,35 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import type { NewProjectInput } from "@/features/lab-notebook/types"
+import type { ExperimentCategory, NewExperimentInput } from "@/features/lab-notebook/types"
 
 interface NewExperimentModalProps {
+  accessToken: string
   open: boolean
   onClose: () => void
-  onCreate: (input: NewProjectInput) => void
+  onCreate: (input: NewExperimentInput) => Promise<void>
+  onLoadCategories: (accessToken: string) => Promise<ExperimentCategory[]>
 }
 
 const newExperimentSchema = z.object({
-  name: z.string().trim().min(1, "Project name is required"),
+  name: z.string().trim().min(1, "Experiment name is required"),
   description: z.string().trim().min(1, "Description is required"),
-  category: z.string().trim().min(1, "Domain is required"),
-  tags: z.string().trim(),
+  categoryId: z.string().trim().min(1, "Category is required"),
 })
 
 type NewExperimentFormValues = z.infer<typeof newExperimentSchema>
 
-export function NewExperimentModal({ open, onClose, onCreate }: NewExperimentModalProps) {
+export function NewExperimentModal({
+  accessToken,
+  open,
+  onClose,
+  onCreate,
+  onLoadCategories,
+}: NewExperimentModalProps) {
+  const [categories, setCategories] = useState<ExperimentCategory[]>([])
+  const [categoriesError, setCategoriesError] = useState("")
+
   const {
-    control,
     register,
     handleSubmit,
     reset,
@@ -52,22 +62,44 @@ export function NewExperimentModal({ open, onClose, onCreate }: NewExperimentMod
     defaultValues: {
       name: "",
       description: "",
-      category: "",
-      tags: "",
+      categoryId: "",
     },
   })
 
-  const selectedCategory = useWatch({ control, name: "category" })
+  useEffect(() => {
+    if (!open) {
+      return
+    }
 
-  const handleCreate = (values: NewExperimentFormValues) => {
-    onCreate({
+    let cancelled = false
+
+    const loadCategories = async () => {
+      try {
+        setCategoriesError("")
+        const nextCategories = await onLoadCategories(accessToken)
+        if (!cancelled) {
+          setCategories(nextCategories)
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setCategories([])
+          setCategoriesError(error instanceof Error ? error.message : "Could not load categories.")
+        }
+      }
+    }
+
+    void loadCategories()
+
+    return () => {
+      cancelled = true
+    }
+  }, [accessToken, onLoadCategories, open])
+
+  const handleCreate = async (values: NewExperimentFormValues) => {
+    await onCreate({
       name: values.name.trim(),
       description: values.description.trim(),
-      domain: values.category,
-      tags: values.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
+      categoryId: Number(values.categoryId),
     })
     reset()
   }
@@ -75,6 +107,7 @@ export function NewExperimentModal({ open, onClose, onCreate }: NewExperimentMod
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen === false) {
       reset()
+      setCategoriesError("")
       onClose()
     }
   }
@@ -83,24 +116,24 @@ export function NewExperimentModal({ open, onClose, onCreate }: NewExperimentMod
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
+          <DialogTitle>New Experiment</DialogTitle>
           <DialogDescription>
-            Set up a new project to organize related experiments under one research goal.
+            Complete the experiment details for this project.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleCreate)} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Project Name</Label>
-            <Input id="name" placeholder="e.g., Stem Cell Response Program" aria-invalid={Boolean(errors.name)} {...register("name")} />
+            <Label htmlFor="name">Experiment Name</Label>
+            <Input id="name" placeholder="e.g., PCR Validation Run 01" aria-invalid={Boolean(errors.name)} {...register("name")} />
             {errors.name ? <p className="text-sm text-destructive">{errors.name.message}</p> : null}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Research Objective</Label>
+            <Label htmlFor="description">Experiment Description</Label>
             <Textarea
               id="description"
-              placeholder="Describe the project scope, hypotheses, and expected outcomes..."
+              placeholder="Describe the goal, protocol, or expected outcome..."
               rows={4}
               aria-invalid={Boolean(errors.description)}
               {...register("description")}
@@ -108,42 +141,30 @@ export function NewExperimentModal({ open, onClose, onCreate }: NewExperimentMod
             {errors.description ? <p className="text-sm text-destructive">{errors.description.message}</p> : null}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">Domain</Label>
-              <Select
-                value={selectedCategory}
-                onValueChange={(value) =>
-                  setValue("category", value, { shouldDirty: true, shouldValidate: true })
-                }
-              >
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="Select domain" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="genetics">Genetics</SelectItem>
-                  <SelectItem value="biochemistry">Biochemistry</SelectItem>
-                  <SelectItem value="microbiology">Microbiology</SelectItem>
-                  <SelectItem value="pharmacology">Pharmacology</SelectItem>
-                  <SelectItem value="cell-biology">Cell Biology</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.category ? <p className="text-sm text-destructive">{errors.category.message}</p> : null}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="tags">Tags</Label>
-              <Input id="tags" placeholder="e.g., RNA, PCR" {...register("tags")} />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="categoryId">Experiment Category</Label>
+            <Select onValueChange={(value) => setValue("categoryId", value, { shouldDirty: true, shouldValidate: true })}>
+              <SelectTrigger id="categoryId" aria-invalid={Boolean(errors.categoryId)}>
+                <SelectValue placeholder="Select experiment category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={String(category.id)}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.categoryId ? <p className="text-sm text-destructive">{errors.categoryId.message}</p> : null}
+            {categoriesError ? <p className="text-sm text-destructive">{categoriesError}</p> : null}
           </div>
 
           <DialogFooter>
             <Button variant="outline" type="button" onClick={() => handleOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              Create Project
+            <Button type="submit" disabled={isSubmitting || categories.length === 0}>
+              Save Experiment
             </Button>
           </DialogFooter>
         </form>

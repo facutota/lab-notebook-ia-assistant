@@ -1,10 +1,10 @@
-import type { ChatResponse } from "@/lib/chat/types"
+import type { ChatExperimentContext, ChatResponse, ChatRequest } from "@/lib/chat/types"
 
-const DEFAULT_API_URL = "http://localhost:8000"
+const DEFAULT_ALMA_API_URL = "http://localhost:8000"
 
 export function getChatApiBaseUrl() {
-  const configuredUrl = process.env.NEXT_PUBLIC_API_URL?.trim()
-  return (configuredUrl || DEFAULT_API_URL).replace(/\/$/, "")
+  const configuredUrl = process.env.NEXT_PUBLIC_ALMA_API_URL?.trim()
+  return (configuredUrl || DEFAULT_ALMA_API_URL).replace(/\/$/, "")
 }
 
 export function formatChatTimestamp() {
@@ -14,27 +14,30 @@ export function formatChatTimestamp() {
   }).format(new Date())
 }
 
-export function buildChatMessagePayload(input: string, attachments: File[]) {
+export function buildChatMessagePayload(
+  input: string,
+  attachments: File[],
+  experimentContext?: ChatExperimentContext
+): ChatRequest {
   const trimmedInput = input.trim()
 
-  if (attachments.length === 0) {
-    return trimmedInput
+  return {
+    message: trimmedInput || "Analizá los archivos adjuntos y el contexto disponible.",
+    files: attachments.map((file) => ({
+      name: file.name,
+      type: file.type,
+    })),
+    experimentContext,
   }
-
-  const attachmentSummary = attachments
-    .map((file) => `${file.name}${file.type ? ` (${file.type})` : ""}`)
-    .join(", ")
-
-  return `${trimmedInput}\n\nAttached files: ${attachmentSummary}`
 }
 
-export async function sendChatMessage(message: string) {
+export async function sendChatMessage(message: ChatRequest) {
   const response = await fetch(`${getChatApiBaseUrl()}/chat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify(message),
   })
 
   const payload = (await response.json()) as ChatResponse

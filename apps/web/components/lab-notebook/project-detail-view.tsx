@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowLeft, Bot, Calendar, FolderOpen, FlaskConical, UserRound } from "lucide-react"
+import { ArrowLeft, Bot, Calendar, FolderOpen, FlaskConical, Plus, UserRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Experiment, Project } from "@/features/lab-notebook/types"
@@ -11,6 +11,7 @@ interface ProjectDetailViewProps {
   onBack: () => void
   onOpenExperiment: (experiment: Experiment) => void
   onAnalyzeWithAI: () => void
+  onNewExperiment: () => void
 }
 
 export function ProjectDetailView({
@@ -18,6 +19,7 @@ export function ProjectDetailView({
   onBack,
   onOpenExperiment,
   onAnalyzeWithAI,
+  onNewExperiment,
 }: ProjectDetailViewProps) {
   const completedExperiments = project.experiments.filter((experiment) => experiment.status === "completed").length
 
@@ -50,6 +52,10 @@ export function ProjectDetailView({
           </div>
         </div>
         <div className="ml-10 flex gap-2 sm:ml-0">
+          <Button variant="outline" onClick={onNewExperiment} className="gap-2">
+            <Plus className="h-4 w-4" />
+            New Experiment
+          </Button>
           <Button onClick={onAnalyzeWithAI} className="gap-2">
             <Bot className="h-4 w-4" />
             Ask AI About Project
@@ -124,8 +130,12 @@ export function ProjectDetailView({
             <div className="rounded-xl border border-dashed border-border bg-secondary/30 p-8 text-center">
               <p className="font-medium text-foreground">No experiments yet</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                This project is ready for its first experiment once the backend workflow is available.
+                Create the first experiment for this project to start tracking activity and results.
               </p>
+              <Button className="mt-4 gap-2" onClick={onNewExperiment}>
+                <Plus className="h-4 w-4" />
+                Create Experiment
+              </Button>
             </div>
           )}
         </CardContent>
