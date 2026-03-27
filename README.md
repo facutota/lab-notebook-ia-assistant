@@ -83,6 +83,8 @@ El sistema se desarrollo íntegramente sobre el ecosistema de Microsoft Azure, e
 | LLM | Azure Open AI | Se optado por utilizar el modelo de GTP-4 para la creaciones de agentes.|
 | Gestion de Agentes | Azure Agent AI | Los agente creados sobre el modelo de gpt disponene de tareas especificas,|
 
+| Uso resonsable de la AI | Azure Content Sefety | Permite validar el texto, y evitar proporcionar informacion prohibidas |
+
 La arquitectura de la plataforma Alma ha sido diseñada e implementada utilizando Azure Resource Group como herramienta fundamental para la gestión y administración centralizada de todos los servicios que la componen. A continuación, se describen los servicios aprovisionados y su rol dentro de la plataforma:
 
 ##### Azure AI Foundry
@@ -275,7 +277,30 @@ Este diseño permite migrar en el futuro a Agent Canvas sin reescribir el core.
 
 #### Test de Pruebas - Etapa de Desarroolo
 
-##### Consulta a la API `/chat`
+##### Validamos el uso de Azure Storage Account
+```bash
+curl -X 'POST' \
+  'http://127.0.0.1:8000/chat' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "message": "Propón un estandar de procedimiento operativo (SOP) para recolección y almacenamiento de muestras biológicas, por ejemplo sangre, incluye un escenario práctico que incluya aspectos relacionados con la investigación clínica",
+  }'
+Request URL
+http://127.0.0.1:8000/chat
+
+Response
+Status: 200
+
+Response Body
+json
+{
+  "reply": "Claro, puedo ayudarte a elaborar un borrador estándar de procedimiento operativo (SOP) para la recolección y almacenamiento de muestras biológicas, específicamente sangre. Para garantizar la precisión y cumplimiento, utilizaré documentos internos (RAG). A continuación, te presento un esquema general:\n\n--\n\n**Procedimiento Operativo Estándar (SOP): Recolección y Almacenamiento de Muestras de Sangre**\n\n**1. Objetivo** \nEstablecer los pasos adecuados para la recolección, identificación, almacenamiento y transporte de muestras de sangre, garantizando la calidad y la integridad de las muestras.\n\n**2. Alcance** \nAplica al personal de laboratorio y personal clínico responsable de la recolección y manejo de muestras de sangre.\n\n**3. Equipo necesario** \n- Guantes estériles y batas de protección \n- Tubos al vacío con aguja y jeringa o dispositivo de punción única \n- Etiquetas impermeables y a prueba de contaminación \n- Contenedor para muestras (recomendado refrigerado) \n- Transporte adecuado con cadena de frío (si es necesario)\n\n**4. Procedimiento** \n\n**4.1 Preparación** \n- Verificar la identidad del paciente y explicar el procedimiento"
+}
+
+```
+
+##### Validamos el Azure Content Safety
 
 ```bash
 curl -X 'POST' \
@@ -313,6 +338,7 @@ json
 ```
 
 
+
 ## 💻 Recursos previos utilizados
 
 Para desplegar y ejecutar de los ejemplos se utilizaron:
@@ -335,10 +361,10 @@ El proyecto esta disponiblida para el siguientes modelos: gpt 4o nano y gpt-5 na
 
 #### Costos
 
-Los precios de los servicios pueden variar según la región y el uso, y es difícil determinar los costos exactos. Para el proyecto se han utilizado los siguientes planes de pago, la intencion de poder indicar los costo se debe a que puedimos evaluar que mediante el costo basico  de los recursos, puedimos dar con la solucion, que nos permitira crear la interaciion correcta con los agentes. 
+Los precios de los servicios pueden variar según la región y el uso, y es difícil determinar los costos exactos. Para el proyecto se han utilizado los siguientes planes de pago, la intencion de poder indicar los costo se debe a que puedimos evaluar que mediante el costo basico  de los recursos, puedimos dar con la solucion, que nos permitira crear la interacion correcta con los agentes. 
 
 
-| **Recurso**| **Plan de pago / Pago por uso** | **Beneficio** |
+<!-- | **Recurso**| **Plan de pago / Pago por uso** | **Beneficio** |
 | -------------------------- | -------------------------------- |-------------------------------- |
 | Static Web App     | Free |
 | App Service     | F1 |
@@ -346,21 +372,13 @@ Los precios de los servicios pueden variar según la región y el uso, y es dif�
 | AI Search    | Pago por uso |
 | Storage Account   | Pago por uso |
 | Azure Foundry | Pago por uso |
-| Azure SQL | Pago por uso |
+| Azure SQL | Pago por uso | -->
 
 
 #### Seguridad
 
+La Azure Static Web App se comunica de forma segura con la Azure Web App mediante conexiones autenticadas, mientras que el acceso a Azure SQL, Storage Account y Azure AI Search se controla a través de firewalls, identidades gestionadas y claves de acceso que limitan qué servicios pueden interactuar entre sí. Azure OpenAI y Azure AI Agent operan con claves privadas y aislamiento de red por defecto, y Azure Content Safety añade una capa de filtrado para prevenir usos indebidos. En conjunto, la seguridad sin modificaciones descansa en el aislamiento de recursos, la autenticación integrada y los controles de acceso propios de la plataforma Azure, protegiendo los datos y la comunicación entre los componentes.
 
-
-<!-- |Recurso |	Nombre |	Región |	Propósito |
-| -------------------------- | -------------------------------- | -------------------------------- | -------------------------------- | 
-|Resource Group |	rg-alma |	East US |	Contenedor principal|
-Storage Account |	stalma01 |	East US |	Blob storage para archivos|
-SQL Server |	svr-alma-01 |	West US |	Servidor de base de datos |
-SQL Database |	db-free-sql-alma |	West US |	Base de datos transaccional |
-
---- -->
 
 ---
 
