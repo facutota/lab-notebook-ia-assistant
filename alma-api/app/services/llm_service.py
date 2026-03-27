@@ -5,8 +5,9 @@ import os
 
 load_dotenv()
 
-SYSTEM_PROMPT_GPT4O  = load_prompt("system_prompt_4.txt")
-SYSTEM_PROMPT_ROUTER = load_prompt("system_router.txt")
+SYSTEM_PROMPT_GPT4O    = load_prompt("system_prompt_4.txt")
+SYSTEM_PROMPT_ROUTER   = load_prompt("system_router.txt")
+SYSTEM_PROMPT_ASSISTANT= load_prompt("system_assistant.txt")
 
 client = openai.AzureOpenAI(
     api_version    = os.getenv("AZURE_API_VERSION"),
@@ -29,8 +30,9 @@ def call_gpt4o(messages):
         return "Error en GPT-4o"
 
 
-# Router
-def call_nano(messages):
+# Router (direccionamiento/respuestas simples)
+def call_nano(messages: str) -> str:
+    system_prompt_ = load_prompt("system_assistant.txt")
     try:
         response = client.chat.completions.create(
             model=os.getenv("AZURE_DEPLOYMENT_NANO"),  # gpt-4.1-router

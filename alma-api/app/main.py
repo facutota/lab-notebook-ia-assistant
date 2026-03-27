@@ -28,7 +28,7 @@ SYSTEM_PROMPT_NANO = load_prompt("app/prompts/system_router.txt")
 
 class ChatRequest(BaseModel):
     message: str
-    files  : list[str] = []
+    files  : list = []
 
 @app.get("/health")
 def health():

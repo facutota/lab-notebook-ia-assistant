@@ -1,4 +1,7 @@
 import os
+from pathlib import Path
+
+PROMPT_DIR = Path(__file__).resolve().parent.parent / "prompts"
 
 def load_prompt(filename: str) -> str:
     base_path = os.path.dirname(os.path.dirname(__file__))  # app/

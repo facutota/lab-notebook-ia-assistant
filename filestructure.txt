@@ -1029,6 +1029,7 @@
                 |-- pythonw.exe
         |-- main.py
         |-- prompts
+            |-- system_assistant.txt,
             |-- system_prompt_4.txt
             |-- system_rag.txt
             |-- system_router.txt

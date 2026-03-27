@@ -1,4 +1,5 @@
 import os
+from openai import AzureOpenAI
 from app.services.llm_service import call_gpt4o
 from app.services.embeddings import get_embedding
 from app.services.prompt_service import load_prompt
@@ -15,12 +16,9 @@ search_client = SearchClient(
 
 # 1. Buscar documentos
 def search_documents(query: str):
-
     embedding = get_embedding(query)
-
     if embedding is None:
         return []
-
     try:
         results = search_client.search(
             search_text=None,
@@ -30,15 +28,12 @@ def search_documents(query: str):
         )
 
         docs = []
-
         for r in results:
             docs.append({
                 "content": r.get("content", ""),
                 "source": r.get("source", "unknown")
             })
-
         return docs
-
     except Exception as e:
         print("ERROR SEARCH:", str(e))
         return []
@@ -46,26 +41,18 @@ def search_documents(query: str):
 
 # 2. Construir contexto
 def build_context(docs):
-
     context = ""
-
     for d in docs:
         context += f"\nFuente: {d['source']}\n{d['content']}\n"
-
     return context
-
 
 # 🔹 3. Respuesta final
 def rag_answer(query: str):
-
     try:
         docs = search_documents(query)
-
         if not docs:
             return "No hay información en la base de conocimiento"
-
         context = build_context(docs)
-
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT_RAG},
             {
