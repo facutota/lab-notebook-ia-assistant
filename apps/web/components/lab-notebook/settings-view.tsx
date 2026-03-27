@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { User, Bell, Shield, Palette } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -7,17 +8,89 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
+import type { UserProfile } from "@/lib/auth/types"
 
-export function SettingsView() {
+interface SettingsViewProps {
+  accessToken: string
+  onLoadProfile: (accessToken: string) => Promise<UserProfile>
+  onSaveProfile: (accessToken: string, input: { firstName: string; lastName: string }) => Promise<UserProfile>
+  onAuthError: () => void
+}
+
+export function SettingsView({ accessToken, onLoadProfile, onSaveProfile, onAuthError }: SettingsViewProps) {
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [email, setEmail] = useState("")
+  const [loadingProfile, setLoadingProfile] = useState(true)
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [profileError, setProfileError] = useState("")
+  const [profileMessage, setProfileMessage] = useState("")
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadProfile = async () => {
+      setLoadingProfile(true)
+      setProfileError("")
+
+      try {
+        const profile = await onLoadProfile(accessToken)
+        if (!cancelled) {
+          setFirstName(profile.firstName)
+          setLastName(profile.lastName)
+          setEmail(profile.email)
+        }
+      } catch (error) {
+        if (!cancelled) {
+          if (error instanceof Error && error.message.toLowerCase().includes("token expirado")) {
+            onAuthError()
+            return
+          }
+          setProfileError(error instanceof Error ? error.message : "No se pudo cargar el perfil.")
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingProfile(false)
+        }
+      }
+    }
+
+    void loadProfile()
+
+    return () => {
+      cancelled = true
+    }
+  }, [accessToken, onLoadProfile])
+
+  const handleSaveProfile = async () => {
+    setSavingProfile(true)
+    setProfileError("")
+    setProfileMessage("")
+
+    try {
+      const profile = await onSaveProfile(accessToken, { firstName, lastName })
+      setFirstName(profile.firstName)
+      setLastName(profile.lastName)
+      setEmail(profile.email)
+      setProfileMessage("Perfil actualizado.")
+    } catch (error) {
+      if (error instanceof Error && error.message.toLowerCase().includes("token expirado")) {
+        onAuthError()
+        return
+      }
+      setProfileError(error instanceof Error ? error.message : "No se pudo guardar el perfil.")
+    } finally {
+      setSavingProfile(false)
+    }
+  }
+
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold text-foreground">Settings</h1>
         <p className="text-muted-foreground">Manage your account and preferences</p>
       </div>
 
-      {/* Profile Settings */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -27,29 +100,28 @@ export function SettingsView() {
           <CardDescription>Manage your personal information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {profileError ? <p className="text-sm text-destructive">{profileError}</p> : null}
+          {profileMessage ? <p className="text-sm text-primary">{profileMessage}</p> : null}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="firstName">First Name</Label>
-              <Input id="firstName" defaultValue="Jane" />
+              <Input id="firstName" value={firstName} onChange={(event) => setFirstName(event.target.value)} disabled={loadingProfile || savingProfile} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName">Last Name</Label>
-              <Input id="lastName" defaultValue="Doe" />
+              <Input id="lastName" value={lastName} onChange={(event) => setLastName(event.target.value)} disabled={loadingProfile || savingProfile} />
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" defaultValue="jane.doe@lab.edu" />
+            <Input id="email" type="email" value={email} readOnly disabled />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="institution">Institution</Label>
-            <Input id="institution" defaultValue="Research University" />
-          </div>
-          <Button>Save Changes</Button>
+          <Button onClick={() => void handleSaveProfile()} disabled={loadingProfile || savingProfile}>
+            {savingProfile ? "Saving..." : "Save Changes"}
+          </Button>
         </CardContent>
       </Card>
 
-      {/* Notification Settings */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -91,7 +163,6 @@ export function SettingsView() {
         </CardContent>
       </Card>
 
-      {/* Security Settings */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -123,7 +194,6 @@ export function SettingsView() {
         </CardContent>
       </Card>
 
-      {/* Appearance Settings */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">

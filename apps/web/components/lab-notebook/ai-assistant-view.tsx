@@ -265,6 +265,12 @@ export function AIAssistantView() {
                 placeholder="Ask about your experiments..."
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault()
+                    void handleSend()
+                  }
+                }}
                 className="min-h-24 resize-none border-0 bg-transparent px-2 py-2 shadow-none focus-visible:ring-0"
                 aria-label="Ask the AI assistant"
               />

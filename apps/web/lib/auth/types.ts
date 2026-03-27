@@ -7,6 +7,13 @@ export interface AuthSession extends AuthTokens {
   email: string
 }
 
+export interface UserProfile {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+}
+
 interface AuthApiTokenResponse {
   access_token: string
   refresh_token: string
