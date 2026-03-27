@@ -24,7 +24,7 @@ def load_prompt(path):
         return f.read()
 
 # SYSTEM_PROMPT_4    = load_prompt("app/prompts/system_prompt_4.txt")
-SYSTEM_PROMPT_NANO = load_prompt("app/prompts/system_router.txt")
+SYSTEM_PROMPT_NANO = load_prompt("prompts/system_assistant.txt")
 
 class ChatRequest(BaseModel):
     message: str
