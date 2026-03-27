@@ -1,11 +1,13 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, Form
+from typing import List, Optional
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from services.llm_service import call_nano
 from services.router import route
 from services.rag_service import rag_answer
+from services.multimodal_service import multimodal_answer
 
 load_dotenv()
 
@@ -23,7 +25,6 @@ def load_prompt(path):
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
-# SYSTEM_PROMPT_4    = load_prompt("app/prompts/system_prompt_4.txt")
 SYSTEM_PROMPT_NANO = load_prompt("prompts/system_assistant.txt")
 
 class ChatRequest(BaseModel):

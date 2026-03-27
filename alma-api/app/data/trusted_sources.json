@@ -1,0 +1,15 @@
+{
+    "ethics": [
+        "https://www.who.int/",
+        "https://www.hhs.gov/ohrp/",
+        "https://eur-lex.europa.eu/"
+    ],
+    "biologia": [
+        "https://www.cdc.gov/",
+        "https://www.ncbi.nlm.nih.gov/"
+    ],
+    "protocols": [
+        "https://www.sigmaaldrich.com/",
+        "https://www.neb.com/"
+    ]
+}

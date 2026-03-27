@@ -80,6 +80,8 @@
     |-- app
         |-- .gitignore
         |-- create_index.py
+        |-- data
+            |-- trusted_sources.json
         |-- main.py
         |-- prompts
             |-- system_assistant.txt
@@ -95,6 +97,7 @@
             |-- prompt_service.py
             |-- rag_service.py
             |-- router.py
+            |-- trusted_sources.py
             |-- __init__.py
             |-- __pycache__
                 |-- embeddings.cpython-311.pyc
@@ -112,6 +115,7 @@
                 |-- router.cpython-312.pyc
                 |-- router.cpython-314.pyc
                 |-- test_embeddings.cpython-314.pyc
+                |-- trusted_sources.cpython-311.pyc
                 |-- __init__.cpython-311.pyc
                 |-- __init__.cpython-312.pyc
                 |-- __init__.cpython-314.pyc

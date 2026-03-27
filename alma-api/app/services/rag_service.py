@@ -4,6 +4,7 @@ from services.embeddings import get_embedding
 from services.prompt_service import load_prompt
 from azure.search.documents import SearchClient
 from azure.core.credentials import AzureKeyCredential
+from services.trusted_sources import get_trusted_sources
 
 SYSTEM_PROMPT_RAG = load_prompt("system_rag.txt")
 
