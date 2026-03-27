@@ -10,7 +10,7 @@ client = AzureOpenAI(
     api_key       =os.getenv("AZURE_OPENAI_KEY"),
 )
 
-def get_embedding(text: str):
+def get_embedding(text: str) -> list:
     try:
         response = client.embeddings.create(
             model=os.getenv("AZURE_EMBEDDING_DEPLOYMENT"),
