@@ -1,8 +1,11 @@
+import datetime
 import uuid
 
-from fastapi import APIRouter, status, Depends, HTTPException
+from fastapi import APIRouter, Query, status, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 
+from models.anotacion import Anotacion
+from schemas.anotacion import AnotacionResponse
 from database import get_db
 from dependencies.auth import get_current_user
 from models import Experimento, Usuario, EstadoExperimento, Proyecto, CategoriaExperimento
@@ -152,7 +155,7 @@ async def eliminar_experimento(
 
 
 @router.put("/{id}", status_code=status.HTTP_200_OK)
-async def eliminar_experimento(
+async def actualizar_experimento(
         id: uuid.UUID,
         data: ActualizarExperimento,
         db: Session = Depends(get_db),
@@ -189,3 +192,41 @@ async def eliminar_experimento(
     db.commit()
     db.refresh(experimento)
     return experimento
+
+@router.get("/{id}/anotaciones/resumen", status_code=status.HTTP_200_OK, response_model=list[AnotacionResponse])
+async def listar_anotaciones_por_fecha(
+        id: uuid.UUID,
+        fecha: str = Query(..., description="Fecha a consultar en formato DD-MM-YYYY"),
+        db: Session = Depends(get_db),
+        current_user: Usuario = Depends(get_current_user),
+):
+    experimento = db.query(Experimento).filter(Experimento.id == id).first()
+    if not experimento:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Experimento no encontrado"
+        )
+    
+    proyecto = db.query(Proyecto).filter(Proyecto.id == experimento.proyecto_id).first()
+    if proyecto.usuario_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes acceso a este experimento"
+        )
+    
+    try:
+        fecha_inicio = datetime.datetime.strptime(fecha, "%d-%m-%Y") 
+        fecha_fin = datetime.datetime(fecha_inicio.year, fecha_inicio.month, fecha_inicio.day, 23, 59, 59)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Formato de fecha inválido. Use DD-MM-YYYY"
+        )
+    
+    anotaciones = db.query(Anotacion).filter(
+        Anotacion.experimento_id == id,
+        Anotacion.fecha_creacion >= fecha_inicio,
+        Anotacion.fecha_creacion <= fecha_fin
+    ).order_by(Anotacion.fecha_creacion.asc()).all()
+    
+    return anotaciones
