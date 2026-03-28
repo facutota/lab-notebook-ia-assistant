@@ -9,10 +9,11 @@
 - [Descripcion general](#descripcion-general)
 - [Caracteristicas](#caracteristicas)
 - [Arquitectura del Sistema](#arquitectura-del-sistema)
+- [Test de Pruebas](#test-de-pruebas)
 - [Planteo del problema](#planteo-del-problema)
-- [Proyecto](#planteo-del-problema)
+- [Proyecto](#proyecto)
     -  [Desafio](#desafio)
-    -  [Repositorio](#repotorio)
+    -  [Repositorio](#repositorio)
     -  [Video](#video)
     -  [Miembros](#miembros)
 
@@ -275,7 +276,7 @@ Este diseño permite migrar en el futuro a Agent Canvas sin reescribir el core.
 
 5. Se retorna respuesta final al usuario
 
-#### Test de Pruebas - Etapa de Desarroolo
+#### Test de Pruebas
 
 ##### Validamos el uso de Azure Storage Account
 ```bash
@@ -382,8 +383,28 @@ En nuestra arquitectura Azure Static Web App se comunica de forma segura con la 
 
 ---
 
+# Proyecto
 
+## Desafio 
 
+El desafio que hemos elegido es Lab Notebook AI Assistant, su escenario:
+
+Los investigadores quieren ayuda para razonar sobre experimentos sin reemplazar el juicio científico. Desarrolle un asistente de cuaderno de laboratorio basado en agentes que interprete protocolos experimentales, sugiera variaciones para los siguientes pasos y analice resultados a partir de texto, archivos CSV o imágenes, explicando claramente por qué se hacen las recomendaciones. El sistema debe aplicar límites de seguridad estrictos (especialmente en dominios biológicos o clínicos), aplicar filtrado de contenido y evitar comportamientos de asesoramiento no permitidos. Los equipos deben centrarse en la explicabilidad, el diseño seguro de agentes y una orquestación sólida de datos y modelos.
+
+## Repositorio 
+
+- https://github.com/facutota/lab-notebook-ia-assistant.git
+
+## Video
+
+- 
+
+## Miembros
+
+- Jorge Cordova Juillerat
+- Facundo Martin Medina Carranza
+- Jerson Elcias Muñoz Espinoza
+- Exequiel Andres Diaz
 
 
 ## Planteo del problema
@@ -490,15 +511,4 @@ Citado en el apartado "El Papel de la Inteligencia Artificial Explicable".
 
 ---
 
-
-
-<!-- Estrategia de Testeo
-
-Capturas de Pantalla
-
-Video Final del Proyecto
-
-Guía de Ejecución del Proyecto
-
-Instalación y Configuración -->
 
