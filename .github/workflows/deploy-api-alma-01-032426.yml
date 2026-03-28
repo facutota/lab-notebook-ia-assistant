@@ -13,9 +13,26 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build clean deployment package
+        run: |
+          mkdir -p /tmp/agent-api-package
+          rsync -av alma-api/app/ /tmp/agent-api-package/ \
+            --exclude '.env' \
+            --exclude '.venv/' \
+            --exclude 'venv311/' \
+            --exclude 'antenv/' \
+            --exclude '__pycache__/' \
+            --exclude '*.pyc' \
+            --exclude '*.pyo'
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: webapp-api-chat-alma-01
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: alma-api/app
+          package: /tmp/agent-api-package
