@@ -13,9 +13,25 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build clean deployment package
+        run: |
+          mkdir -p /tmp/domain-api-package
+          rsync -av apps/api/ /tmp/domain-api-package/ \
+            --exclude '.env' \
+            --exclude '.venv/' \
+            --exclude 'antenv/' \
+            --exclude '__pycache__/' \
+            --exclude '*.pyc' \
+            --exclude '*.pyo'
+
       - name: Deploy apps/api to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: webapp-domain-api-alma-01
           publish-profile: ${{ secrets.AZURE_WEBAPP_DOMAIN_API_PUBLISH_PROFILE }}
-          package: apps/api
+          package: /tmp/domain-api-package
