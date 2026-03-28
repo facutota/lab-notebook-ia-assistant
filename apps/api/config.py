@@ -1,5 +1,4 @@
 import os
-import secrets
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 env_path = os.path.join(os.path.dirname(__file__), '.env')

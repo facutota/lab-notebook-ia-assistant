@@ -32,6 +32,29 @@ export async function loginWithPassword(email: string, password: string): Promis
   })
 }
 
+export async function loginWithMicrosoft(idToken: string): Promise<AuthTokens> {
+  const response = await fetch(`${getDomainApiBaseUrl()}/auth/login/microsoft`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id_token: idToken,
+    }),
+  })
+
+  const payload = (await response.json()) as { detail?: string; access_token?: string; refresh_token?: string }
+
+  if (!response.ok || !payload.access_token || !payload.refresh_token) {
+    throw new Error(payload.detail ?? "No se pudo iniciar sesión con Microsoft.")
+  }
+
+  return mapAuthTokenResponse({
+    access_token: payload.access_token,
+    refresh_token: payload.refresh_token,
+  })
+}
+
 function getAuthHeaders(accessToken: string) {
   return {
     Authorization: `Bearer ${accessToken}`,

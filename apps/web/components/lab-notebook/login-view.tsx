@@ -9,9 +9,10 @@ import { Input } from "@/components/ui/input"
 
 interface LoginViewProps {
   onSubmit: (credentials: { email: string; password: string }) => Promise<void>
+  onMicrosoftLogin: () => Promise<void>
 }
 
-export function LoginView({ onSubmit }: LoginViewProps) {
+export function LoginView({ onSubmit, onMicrosoftLogin }: LoginViewProps) {
   const [email, setEmail] = useState("admin@demo.com")
   const [password, setPassword] = useState("1a2b3c")
   const [errorMessage, setErrorMessage] = useState("")
@@ -26,6 +27,19 @@ export function LoginView({ onSubmit }: LoginViewProps) {
       await onSubmit({ email, password })
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "No se pudo iniciar sesión.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleMicrosoftLogin = async () => {
+    setErrorMessage("")
+    setIsSubmitting(true)
+
+    try {
+      await onMicrosoftLogin()
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "No se pudo iniciar sesión con Microsoft.")
     } finally {
       setIsSubmitting(false)
     }
@@ -80,6 +94,10 @@ export function LoginView({ onSubmit }: LoginViewProps) {
             <Button type="submit" className="w-full gap-2" disabled={isSubmitting}>
               {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
               {isSubmitting ? "Ingresando..." : "Iniciar sesión"}
+            </Button>
+
+            <Button type="button" variant="outline" className="w-full" disabled={isSubmitting} onClick={() => void handleMicrosoftLogin()}>
+              Ingresar con Microsoft
             </Button>
           </form>
         </CardContent>

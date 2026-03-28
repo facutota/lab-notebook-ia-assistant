@@ -1,0 +1,21 @@
+name: Deploy Domain API to Azure Web App
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy apps/api to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: webapp-domain-api-alma-01
+          publish-profile: ${{ secrets.AZURE_WEBAPP_DOMAIN_API_PUBLISH_PROFILE }}
+          package: apps/api

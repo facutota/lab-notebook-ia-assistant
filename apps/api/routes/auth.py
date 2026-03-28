@@ -1,7 +1,6 @@
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.security import OAuth2PasswordRequestForm
-from jwt import PyJWKClient
 from sqlalchemy.orm import Session
 from typing import Any
 
@@ -15,9 +14,6 @@ from models import Usuario
 from schemas.token import Token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
-jwks_client = PyJWKClient(
-    f"https://login.microsoftonline.com/{settings.azure_tenant_id}/discovery/v2.0/keys")
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Any:
@@ -85,26 +81,33 @@ async def refresh_token(refresh_token: str = Body(embed=True), db: Session = Dep
 
 @router.post("/login/microsoft", response_model=Token)
 async def login_microsoft(data: MicrosoftLoginRequest, db: Session = Depends(get_db)):
+    if not settings.azure_client_id or not settings.azure_tenant_id:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Azure Entra ID no está configurado en la API.",
+        )
+
     token = data.id_token
-    openid_config = await get_openid_config()
-    jwks = await get_jwks(openid_config)
+    openid_config = await get_openid_config(settings.azure_tenant_id)
+    jwks = await get_jwks(openid_config["jwks_uri"])
 
-    payload = decode_token_azure(token, jwks)
-
-    if payload.get("aud") != settings.azure_client_id:
-        raise HTTPException(status_code=401, detail=f"Invalid token audience {payload.get("aud")}")
+    payload = decode_token_azure(
+        token,
+        jwks,
+        audience=settings.azure_client_id,
+        issuer=openid_config["issuer"],
+    )
 
     email = (
-        payload.get("email")
-        or payload.get("preferred_username")
+        payload.get("preferred_username")
+        or payload.get("email")
         or payload.get("upn")
     )
 
     if not email:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    user = db.query(Usuario).filter(
-        Usuario.email == email).first()
+    user = db.query(Usuario).filter(Usuario.email == email).first()
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

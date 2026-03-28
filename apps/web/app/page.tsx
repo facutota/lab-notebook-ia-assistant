@@ -15,7 +15,8 @@ import { SettingsView } from "@/components/lab-notebook/settings-view"
 import { Sidebar } from "@/components/lab-notebook/sidebar"
 import { TopBar } from "@/components/lab-notebook/top-bar"
 import { buildDashboardStats, buildRecentActivity } from "@/features/lab-notebook/data"
-import { getMyProfile, loginWithPassword, updateMyProfile } from "@/lib/auth/api"
+import { getMyProfile, loginWithMicrosoft, loginWithPassword, updateMyProfile } from "@/lib/auth/api"
+import { loginWithMicrosoftPopup } from "@/lib/auth/entra"
 import type { ChatExperimentContext } from "@/lib/chat/types"
 import {
   createExperiment,
@@ -208,6 +209,18 @@ export default function LabNotebookApp() {
     setSession(nextSession)
   }
 
+  const handleMicrosoftLogin = async () => {
+    const { email, idToken } = await loginWithMicrosoftPopup()
+    const tokens = await loginWithMicrosoft(idToken)
+    const nextSession: AuthSession = {
+      email,
+      ...tokens,
+    }
+
+    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextSession))
+    setSession(nextSession)
+  }
+
   const handleSignOut = () => {
     window.localStorage.removeItem(AUTH_STORAGE_KEY)
     setSession(null)
@@ -341,7 +354,7 @@ export default function LabNotebookApp() {
   }
 
   if (!session) {
-    return <LoginView onSubmit={handleLogin} />
+    return <LoginView onSubmit={handleLogin} onMicrosoftLogin={handleMicrosoftLogin} />
   }
 
   return (

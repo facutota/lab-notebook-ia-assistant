@@ -1,12 +1,16 @@
-from fastapi import HTTPException
-from jose import jwt, JWTError
 import httpx
+from fastapi import HTTPException
+from jose import JWTError, jwt
 
-MICROSOFT_OPENID_CONFIG_URL = "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"
+MICROSOFT_OPENID_CONFIG_URL_TEMPLATE = (
+    "https://login.microsoftonline.com/{tenant_id}/v2.0/.well-known/openid-configuration"
+)
 
-openid_config_cache = None
+openid_config_cache: dict[str, dict] = {}
+jwks_cache: dict[str, dict] = {}
 
-def decode_token_azure(token: str, jwks: dict) -> dict:
+
+def decode_token_azure(token: str, jwks: dict, audience: str, issuer: str) -> dict:
     try:
         unverified_header = jwt.get_unverified_header(token)
     except JWTError:
@@ -32,8 +36,8 @@ def decode_token_azure(token: str, jwks: dict) -> dict:
             token,
             rsa_key,
             algorithms=["RS256"],
-            audience="api://{client_id}",
-            options={"verify_aud": False},
+            audience=audience,
+            issuer=issuer,
         )
     except JWTError as e:
         raise HTTPException(status_code=401, detail=f"Token validation failed: {str(e)}")
@@ -41,17 +45,21 @@ def decode_token_azure(token: str, jwks: dict) -> dict:
     return payload
 
 
-async def get_openid_config():
-    global openid_config_cache
-    if openid_config_cache is None:
+async def get_openid_config(tenant_id: str):
+    if tenant_id not in openid_config_cache:
         async with httpx.AsyncClient() as client:
-            response = await client.get(MICROSOFT_OPENID_CONFIG_URL)
-            openid_config_cache = response.json()
-    return openid_config_cache
+            response = await client.get(
+                MICROSOFT_OPENID_CONFIG_URL_TEMPLATE.format(tenant_id=tenant_id)
+            )
+            response.raise_for_status()
+            openid_config_cache[tenant_id] = response.json()
+    return openid_config_cache[tenant_id]
 
 
-async def get_jwks(openid_config: dict):
-    jwks_url = openid_config.get("jwks_uri")
-    async with httpx.AsyncClient() as client:
-        response = await client.get(jwks_url)
-        return response.json()
+async def get_jwks(jwks_url: str):
+    if jwks_url not in jwks_cache:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(jwks_url)
+            response.raise_for_status()
+            jwks_cache[jwks_url] = response.json()
+    return jwks_cache[jwks_url]
