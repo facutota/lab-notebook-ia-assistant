@@ -124,7 +124,7 @@ export function AIAssistantView({ experimentContext }: AIAssistantViewProps) {
     setIsSending(true)
 
     try {
-      const payload = await sendChatMessage(messagePayload)
+      const payload = await sendChatMessage(messagePayload, attachments)
       const assistantMessage: ChatMessage = {
         id: Date.now() + 1,
         role: "assistant",
@@ -256,7 +256,7 @@ export function AIAssistantView({ experimentContext }: AIAssistantViewProps) {
 
           {attachments.length > 0 ? (
             <p className="mb-3 text-xs text-muted-foreground">
-              Los archivos se adjuntan en la interfaz y hoy se envían al backend como referencia por nombre y tipo.
+              Los archivos se enviaran al backend junto con tu mensaje para analisis multimodal.
             </p>
           ) : null}
 
