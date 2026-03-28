@@ -11,10 +11,10 @@
 - [Arquitectura del Sistema](#arquitectura-del-sistema)
 - [Planteo del problema](#planteo-del-problema)
 - [Proyecto](#planteo-del-problema)
-    -  [Desafio](#desafio)
-    -  [Repositorio](#repotorio)
-    -  [Video](#video)
-    -  [Miembros](#miembros)
+  - [Desafio](#desafio)
+  - [Repositorio](#repotorio)
+  - [Video](#video)
+  - [Miembros](#miembros)
 
 <!-- - [Tecnologías usadas](#tecnologías-usadas)
 - [Recursos Azure Desplegados](#recursos-azure-desplegados)
@@ -23,7 +23,6 @@
 - [Video Final del Proyecto](#video-Final-del-Proyecto)
 - [Guía de Ejecución del Proyecto](#guía-de-ejecución-del-proyecto)
 - [Instalación y Configuración](#recursos-azure-desplegados) -->
-
 
 ## 📋 Descripcion general
 
@@ -55,13 +54,13 @@ En este ejemplo podemos observar el flujo completo de interacción entre el cien
 
 La propuesta de valor que buscamos transmitir con Alma es demostrar el uso y el potencial de una arquitectura básica para la gestión de cuadernos de laboratorio, y cómo, a través de adaptaciones y la correcta aplicación de buenas prácticas —como el uso de patrones de diseño bien definidos en los servicios de Azure, por ejemplo, en las cuentas de almacenamiento— es posible escalar la solución. Aunque entendemos que se trata de una solución sencilla, también permite comprender que su uso no se limita a laboratorios pequeños, sino que puede aplicarse a aquellos con experimentos más complejos y sensibles.
 
-* **Gestion de exprimentos y proyectos**: Registro de proyectos y experimientos con una estructura jerarquica
-* **Cuaderno de laboratorio**: Registro de anotaciones, observaciones y resultado, como tambien visulizarlo mediante una interfaz tipo chat interactivo.
-* **Almacenamientos de Archivos**: Permite subir y gestionar archivos PDFs, imagenes, CSVs.
-* **Interacion por voz**: Permite a los cientifico registrar e interacturar con el asitente mediante la voz.
-* **Procesamiento de Documentos**: Mediante el uso de OCR para imagenes y extraccion de texto de PDFs
-* **Asistente AI**: Chat contextual con capacidad de grounding en documentos del laboratorio.
-* **Busqueda Semantica**: Mediante la generacion aumenta de recuperacion (RAG), se utiliza la base de conocimiento, previamente almacenada.
+- **Gestion de exprimentos y proyectos**: Registro de proyectos y experimientos con una estructura jerarquica
+- **Cuaderno de laboratorio**: Registro de anotaciones, observaciones y resultado, como tambien visulizarlo mediante una interfaz tipo chat interactivo.
+- **Almacenamientos de Archivos**: Permite subir y gestionar archivos PDFs, imagenes, CSVs.
+- **Interacion por voz**: Permite a los cientifico registrar e interacturar con el asitente mediante la voz.
+- **Procesamiento de Documentos**: Mediante el uso de OCR para imagenes y extraccion de texto de PDFs
+- **Asistente AI**: Chat contextual con capacidad de grounding en documentos del laboratorio.
+- **Busqueda Semantica**: Mediante la generacion aumenta de recuperacion (RAG), se utiliza la base de conocimiento, previamente almacenada.
 
 ---
 
@@ -73,71 +72,83 @@ El sistema se desarrollo íntegramente sobre el ecosistema de Microsoft Azure, e
 
 ![Diagrama arquitectura](./docs/img/diagrama-arquitectura-alma.png)
 
-| **Capa**                   | **Tecnologia**                   | **Descripción** |
-| -------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-| Frotend     | Azure Static Web App  | Este servicio permitira mostrar a los usuarios externos la interfaz necesaria para interacturar son el sistema.|
-| Backend API | Azure Web App (Python) | Este capa tiene como objetivo establecer las conexiones mediante Apis entre Azure Foundry, tambien actuar como intermediario con el servicios de Azure Static web App, ademas de establecer la logica del sistema. |
-| Base de datos            | Azure SQL (capa gratuita)           | Este base de datos almacenara, el registro de usuario, proyectos, experimientos y anotaciones.|
-| Almacenamiento              | Azure Storage Acount  | Repositorio de archivos de texto, imagenes y resultados Este servicio permite al sistema almacenar los archivos que seran utilziadas para validar, los resultados de los experimientos.|
-| Busqueda vectorial | Azure AI Search | Este servicio permite al sistema gestionar la busqueda, los documentos cientificos que fueron almacendos en el blob storage.|
-| LLM | Azure Open AI | Se optado por utilizar el modelo de GTP-4 para la creaciones de agentes.|
-| Gestion de Agentes | Azure Agent AI | Los agente creados sobre el modelo de gpt disponene de tareas especificas,|
+| **Capa**           | **Tecnologia**            | **Descripción**                                                                                                                                                                                                    |
+| ------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Frotend            | Azure Static Web App      | Este servicio permitira mostrar a los usuarios externos la interfaz necesaria para interacturar son el sistema.                                                                                                    |
+| Backend API        | Azure Web App (Python)    | Este capa tiene como objetivo establecer las conexiones mediante Apis entre Azure Foundry, tambien actuar como intermediario con el servicios de Azure Static web App, ademas de establecer la logica del sistema. |
+| Base de datos      | Azure SQL (capa gratuita) | Este base de datos almacenara, el registro de usuario, proyectos, experimientos y anotaciones.                                                                                                                     |
+| Almacenamiento     | Azure Storage Acount      | Repositorio de archivos de texto, imagenes y resultados Este servicio permite al sistema almacenar los archivos que seran utilziadas para validar, los resultados de los experimientos.                            |
+| Busqueda vectorial | Azure AI Search           | Este servicio permite al sistema gestionar la busqueda, los documentos cientificos que fueron almacendos en el blob storage.                                                                                       |
+| LLM                | Azure Open AI             | Se optado por utilizar el modelo de GTP-4 para la creaciones de agentes.                                                                                                                                           |
+| Gestion de Agentes | Azure Agent AI            | Los agente creados sobre el modelo de gpt disponene de tareas especificas,                                                                                                                                         |
 
 La arquitectura de la plataforma Alma ha sido diseñada e implementada utilizando Azure Resource Group como herramienta fundamental para la gestión y administración centralizada de todos los servicios que la componen. A continuación, se describen los servicios aprovisionados y su rol dentro de la plataforma:
 
 ##### Azure AI Foundry
+
 Este servicio fue aprovisionado junto con un project hub, el cual actúa como punto central para la administración y gobernanza de los servicios de inteligencia artificial. Desde este hub se gestionan las capacidades de Azure AI Agent y Azure OpenAI, permitiendo un control unificado de los recursos de IA.
 
 ##### Azure AI Agent
+
 Este servicio es el encargado de la orquestación de los agentes de IA desarrollados para el proyecto. Su función principal es coordinar la toma de decisiones automatizada, facilitando la interacción entre los distintos agentes y asegurando que los procesos de inferencia y acción se ejecuten de manera eficiente y coherente.
 
 ##### Azure OpenAI
+
 A través de este servicio se habilita el acceso a modelos avanzados de lenguaje. En particular, se ha seleccionado los modelos de GPT-4 para tareas de interaccion simples y GPT-5 para tareas mas complejas, el cual potencia las capacidades cognitivas de los agentes, permitiendo procesamiento de lenguaje natural, generación de respuestas contextualizadas y soporte en la toma de decisiones dentro de la plataforma.
 
 ##### Azure Storage Account
+
 Se ha implementado una cuenta de almacenamiento organizada en contenedores y directorios estructurados por dominios de conocimiento. Actualmente, las áreas definidas son:
 
-* Biología
+- Biología
 
-* Éticas
+- Éticas
 
-* Protocolos
+- Protocolos
 
-Esta estructura permite que los agentes de IA accedan y extraigan información relevante de manera eficiente, garantizando que los resultados entregados a los científicos estén fundamentados en datos organizados y contextualmente adecuados.
+- Uploads_persistentes
+
+- Uploads_temporales
+
+Esta estructura permite mucha plasticidad para configurar la realidad de cada Laboratorio y los dominios de conocimiento con los que está relacionado para trabajar, pudiendo existir bases de conocimiento muy customizadas, con reglas personalizadas sobre chunking, metadatos, títulos, dominios, que hacen más eficientes y rápidas las búsquedas que realiza el agente de IA, mejorando su precisión, minimizando latencia y proveyendo una experiencia al usuario superior, garantizando que los resultados e insights estén fundamentados, provengan de fuentes confiables o probadas y que los datos se mantengan organizados, disponibles y contextualmente adecuados.
 
 ##### Azure Static Web App
+
 Para el desarrollo del frontend, se aprovisionó una aplicación web estática, la cual se integró con GitHub para habilitar un flujo de trabajo continuo de integración y despliegue. El entorno visual fue construido utilizando React y Next.js, ofreciendo una interfaz moderna, dinámica y altamente performante para los usuarios finales.
 
 ##### Azure Web App
-El backend de la plataforma está alojado en una Azure Web App, donde se define y ejecuta la lógica de negocio. Para ello, se utilizó **Python** como lenguaje de desarrollo, implementando una serie de endpoints REST que exponen las funcionalidades clave de la plataforma, asegurando escalabilidad y mantenibilidad. Para la creación de los endpoints se ha utilizado el framework **FastAPI**, mientras que para la gestión de la base de datos se emplea **SQLAlchemy** como ORM, permitiendo la interacción con Microsoft SQL Server. 
 
-La conexión con los servicios de inteligencia artificial se gestiona a través de tres variables de entorno definidas en la Azure Web App: 
-* AZURE_OPENAI_ENDPOINT, que almacena la URL del recurso de OpenAI. 
-* AZURE_OPENAI_KEY, que contiene la clave de autenticación para autorizar el acceso. 
-* AZURE_DEPLOYMENT, que especifica el nombre del modelo desplegado. De esta forma, los endpoints de FastAPI pueden consumir los servicios de IA de manera dinámica, segura y mantenible sin necesidad de modificar el código fuente. 
+El backend de la plataforma está alojado en una Azure Web App, donde se define y ejecuta la lógica de negocio. Para ello, se utilizó **Python** como lenguaje de desarrollo, implementando una serie de endpoints REST que exponen las funcionalidades clave de la plataforma, asegurando escalabilidad y mantenibilidad. Para la creación de los endpoints se ha utilizado el framework **FastAPI**, mientras que para la gestión de la base de datos se emplea **SQLAlchemy** como ORM, permitiendo la interacción con Microsoft SQL Server.
 
- Adicionalmente, la Azure Web App se encuentra conectada a un repositorio de GitHub, lo que permite implementar un flujo de integración y despliegue continuo (CI/CD). Esto significa que cada vez que se realiza un cambio en el repositorio, ya sea una nueva funcionalidad, una corrección o una mejora en los endpoints, Azure detecta automáticamente la actualización y ejecuta el proceso de construcción, pruebas y despliegue del backend sin intervención manual. De esta manera, se asegura que la aplicación siempre refleje la última versión disponible en el repositorio, agilizando el ciclo de desarrollo y garantizando la consistencia entre el código fuente y el servicio en producción.
+La conexión con los servicios de inteligencia artificial se gestiona a través de tres variables de entorno definidas en la Azure Web App:
+
+- AZURE_OPENAI_ENDPOINT, que almacena la URL del recurso de OpenAI.
+- AZURE_OPENAI_KEY, que contiene la clave de autenticación para autorizar el acceso.
+- AZURE_DEPLOYMENT, que especifica el nombre del modelo desplegado. De esta forma, los endpoints de FastAPI pueden consumir los servicios de IA de manera dinámica, segura y mantenible sin necesidad de modificar el código fuente.
+
+Adicionalmente, la Azure Web App se encuentra conectada a un repositorio de GitHub, lo que permite implementar un flujo de integración y despliegue continuo (CI/CD). Esto significa que cada vez que se realiza un cambio en el repositorio, ya sea una nueva funcionalidad, una corrección o una mejora en los endpoints, Azure detecta automáticamente la actualización y ejecuta el proceso de construcción, pruebas y despliegue del backend sin intervención manual. De esta manera, se asegura que la aplicación siempre refleje la última versión disponible en el repositorio, agilizando el ciclo de desarrollo y garantizando la consistencia entre el código fuente y el servicio en producción.
 
 ##### Azure SQL Database
+
 Se diseñó e implementó un modelo relacional compuesto por 10S tablas, las cuales permiten almacenar y gestionar de forma estructurada la información crítica de la plataforma. Entre los datos gestionados se encuentran:
 
-* Creación y seguimiento de proyectos
+- Creación y seguimiento de proyectos
 
-* Registro de experimentos
+- Registro de experimentos
 
-* Anotaciones generadas durante los procesos de análisis
+- Anotaciones generadas durante los procesos de análisis
 
-* Gestión de usuarios y roles, asegurando un control de acceso seguro y personalizado
+- Gestión de usuarios y roles, asegurando un control de acceso seguro y personalizado
 
 ---
 
 ## 🤖 Flujo de Multiagentes
 
-####  Definicion de los agentes
+#### Definicion de los agentes
 
-* Agente numero 1:
-* Agente numero 2:
-* Agente numero 3:
+- Agente numero 1:
+- Agente numero 2:
+- Agente numero 3:
 
 ## 💻 Recursos previos utilizados
 
@@ -161,26 +172,22 @@ El proyecto esta disponiblida para el siguientes modelos: gpt 4o nano y gpt-5 na
 
 #### Costos
 
-Los precios de los servicios pueden variar según la región y el uso, y es difícil determinar los costos exactos. Para el proyecto se han utilizado los siguientes planes de pago, la intencion de poder indicar los costo se debe a que puedimos evaluar que mediante el costo basico  de los recursos, puedimos dar con la solucion, que nos permitira crear la interaciion correcta con los agentes. 
+Los precios de los servicios pueden variar según la región y el uso, y es difícil determinar los costos exactos. Para el proyecto se han utilizado los siguientes planes de pago, la intencion de poder indicar los costo se debe a que puedimos evaluar que mediante el costo basico de los recursos, puedimos dar con la solucion, que nos permitira crear la interaciion correcta con los agentes.
 
-
-| **Recurso**| **Plan de pago / Pago por uso** | **Beneficio** |
-| -------------------------- | -------------------------------- |-------------------------------- |
-| Static Web App     | Free |
-| App Service     | F1 |
-| OpenAI    | Pago por uso de los modelo GPT4o y GPT5-nano |
-| AI Search    | Pago por uso |
-| Storage Account   | Pago por uso |
-| Azure Foundry | Pago por uso |
-| Azure SQL | Pago por uso |
-
+| **Recurso**     | **Plan de pago / Pago por uso**              | **Beneficio** |
+| --------------- | -------------------------------------------- | ------------- |
+| Static Web App  | Free                                         |
+| App Service     | F1                                           |
+| OpenAI          | Pago por uso de los modelo GPT4o y GPT5-nano |
+| AI Search       | Pago por uso                                 |
+| Storage Account | Pago por uso                                 |
+| Azure Foundry   | Pago por uso                                 |
+| Azure SQL       | Pago por uso                                 |
 
 #### Seguridad
 
-
-
 <!-- |Recurso |	Nombre |	Región |	Propósito |
-| -------------------------- | -------------------------------- | -------------------------------- | -------------------------------- | 
+| -------------------------- | -------------------------------- | -------------------------------- | -------------------------------- |
 |Resource Group |	rg-alma |	East US |	Contenedor principal|
 Storage Account |	stalma01 |	East US |	Blob storage para archivos|
 SQL Server |	svr-alma-01 |	West US |	Servidor de base de datos |
@@ -190,10 +197,9 @@ SQL Database |	db-free-sql-alma |	West US |	Base de datos transaccional |
 
 ---
 
-
 ## Planteo del problema
 
-#### Contexto y Situación Problemática 
+#### Contexto y Situación Problemática
 
 En la actualidad, los laboratorios de investigación enfrentan un desafío estructural que compromete tanto la validez científica como la integridad física de sus operaciones. A pesar de los avances tecnológicos globales, una proporción significativa de estas instituciones continúa dependiendo de cuadernos de laboratorio físicos para el registro, conservación y validación de experimentos científicos. Esta dependencia de métodos analógicos en un entorno cada vez más digitalizado genera una serie de problemáticas interconectadas que afectan la calidad, seguridad y eficiencia de la investigación científica en la región.
 
@@ -269,33 +275,31 @@ Implementar una orquestación robusta de datos y modelos, garantizando la integr
 
 ### Fuentes consutladas
 
-* **_AAAI (Association for the Advancement of Artificial Intelligence)_**
-Estudio sistemático sobre reproducibilidad en inteligencia artificial (abril 2025).
-Citado en el apartado "Crisis de Reproducibilidad y la Necesidad de Asistencia al Juicio Científico".
+- **_AAAI (Association for the Advancement of Artificial Intelligence)_**
+  Estudio sistemático sobre reproducibilidad en inteligencia artificial (abril 2025).
+  Citado en el apartado "Crisis de Reproducibilidad y la Necesidad de Asistencia al Juicio Científico".
 
-* **_Science Bulletin_**
-Estudio sobre datos oscuros en investigación biológica (febrero 2025).
-Citado en el apartado "La Complejidad del Análisis Multimodal en la Investigación Moderna".
+- **_Science Bulletin_**
+  Estudio sobre datos oscuros en investigación biológica (febrero 2025).
+  Citado en el apartado "La Complejidad del Análisis Multimodal en la Investigación Moderna".
 
-* **_Universidad EAN (Colombia)_**
-Estudio sobre "costos de no calidad" asociados a eventos adversos e incidentes en servicios de laboratorio clínico (2024).
-Citado en el apartado "Riesgos en Dominios Biológicos y Clínicos".
+- **_Universidad EAN (Colombia)_**
+  Estudio sobre "costos de no calidad" asociados a eventos adversos e incidentes en servicios de laboratorio clínico (2024).
+  Citado en el apartado "Riesgos en Dominios Biológicos y Clínicos".
 
-* **_Proyecto BELLA II / RedCLARA_**
-Documentación sobre espacios de experimentación controlados y validación de soluciones tecnológicas (2025).
-Citado en el apartado "Capacidades de Orquestación y Manejo de Datos".
+- **_Proyecto BELLA II / RedCLARA_**
+  Documentación sobre espacios de experimentación controlados y validación de soluciones tecnológicas (2025).
+  Citado en el apartado "Capacidades de Orquestación y Manejo de Datos".
 
-* **_Universidad de Southampton_**
-Década de investigación e implementación de sistemas digitales de apoyo a la investigación (2026).
-Citado en el apartado "Experiencias Exitosas con Sistemas de Asistencia Científica".
+- **_Universidad de Southampton_**
+  Década de investigación e implementación de sistemas digitales de apoyo a la investigación (2026).
+  Citado en el apartado "Experiencias Exitosas con Sistemas de Asistencia Científica".
 
-* **_Literatura sobre Inteligencia Artificial Explicable (XAI)_**
-Investigación sobre sistemas que proporcionan justificaciones claras para generar confianza y facilitar adopción.
-Citado en el apartado "El Papel de la Inteligencia Artificial Explicable".
+- **_Literatura sobre Inteligencia Artificial Explicable (XAI)_**
+  Investigación sobre sistemas que proporcionan justificaciones claras para generar confianza y facilitar adopción.
+  Citado en el apartado "El Papel de la Inteligencia Artificial Explicable".
 
 ---
-
-
 
 <!-- Estrategia de Testeo
 
@@ -306,4 +310,3 @@ Video Final del Proyecto
 Guía de Ejecución del Proyecto
 
 Instalación y Configuración -->
-
