@@ -135,7 +135,7 @@ Se diseñó e implementó un modelo relacional compuesto por 10S tablas, las cua
 
 ##### Azure Content Sefety
 
-Estamos usando Azure Content Safety para realizar análisis de moderación de contenido textual. Evalumos el texto ingresado en busca de categorías de riesgo como discurso de odio, autolesión, contenido sexual y violencia, y devolvemos un nivel de severidad que indica qué tan peligroso o inapropiado es el contenido analizado.
+Estamos usando Azure Content Safety para realizar análisis de moderación de contenido textual. Evaluamos el texto ingresado en busca de categorías de riesgo como discurso de odio, autolesión, contenido sexual y violencia, y devolvemos un nivel de severidad que indica qué tan peligroso o inapropiado es el contenido analizado.
 
 ---
 
@@ -153,7 +153,7 @@ Utilizando los servicios de Azure AI, este proyecto implementa un Asistente de I
 
 * mantener una arquitectura simple y escalable para un MVP.
 
-A diferencia de un pipeline construido en el Agent Canvas de Azure AI Studio, para los alcances y tiempo de este MVPfuncional y escalable, utiliza un que enfatiza las capacidades de adaptación y felxibilidad de los servicios de AZURE, pudiendo soportar implementaciones NO/LOW CODE y otras FULL CODE, basadas en código para orquestar y customizar con mayor control sus servicios de forma segura, resilente, y eficiente:
+A diferencia de un pipeline construido en el Agent Canvas de Azure AI Studio, para los alcances y tiempo de este MVP funcional y escalable, utiliza un enfoque que enfatiza las capacidades de adaptación y flexibilidad de los servicios de MICROSOFT AZURE, pudiendo soportar implementaciones NO/LOW CODE y otras FULL CODE, basadas en código para orquestar y customizar con mayor control sus servicios de forma segura, resiliente, y eficiente:
 
 * Multiagente por orquestación interna basada en reglas (Rule-Based Router).
 
