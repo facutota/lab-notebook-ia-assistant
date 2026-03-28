@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     token_expire_in_minutes: int = 30
     refresh_token_expire_in_days: int = 7
     algorithm: str = "HS256"
+    azure_client_id: str = ""
+    azure_tenant_id: str = ""
     model_config = SettingsConfigDict(env_file=env_path, env_file_encoding="utf-8")
 
 
