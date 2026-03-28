@@ -1,4 +1,4 @@
-name: Deploy FastAPI to Azure Web App
+name:  Deploy Agent API to Azure Web App
 
 on:
   push:
