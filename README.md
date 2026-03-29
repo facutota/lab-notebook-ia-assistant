@@ -397,7 +397,7 @@ Los investigadores quieren ayuda para razonar sobre experimentos sin reemplazar 
 
 ## Video
 
-- 
+- https://youtu.be/ZDDyDTGqaWM
 
 ## Miembros
 
