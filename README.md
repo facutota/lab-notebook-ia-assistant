@@ -62,7 +62,6 @@ La propuesta de valor que buscamos transmitir con Alma es demostrar el uso y el 
 * **Gestion de exprimentos y proyectos**: Registro de proyectos y experimientos con una estructura jerarquica
 * **Cuaderno de laboratorio**: Registro de anotaciones, observaciones y resultado, como tambien visulizarlo mediante una interfaz tipo chat interactivo.
 * **Almacenamientos de Archivos**: Permite subir y gestionar archivos PDFs, imagenes, CSVs.
-* **Interacion por voz**: Permite a los cientifico registrar e interacturar con el asitente mediante la voz.
 * **Procesamiento de Documentos**: Mediante el uso de OCR para imagenes y extraccion de texto de PDFs
 * **Asistente AI**: Chat contextual con capacidad de grounding en documentos del laboratorio.
 * **Busqueda Semantica**: Mediante la generacion aumenta de recuperacion (RAG), se utiliza la base de conocimiento, previamente almacenada.
