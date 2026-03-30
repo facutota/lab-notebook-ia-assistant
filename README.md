@@ -14,6 +14,8 @@
 - [Proyecto](#proyecto)
     -  [Desafio](#desafio)
     -  [Repositorio](#repositorio)
+    -  [Diapositiva](#diapositiva)
+    -  [Drive](#drive)
     -  [Video](#video)
     -  [Miembros](#miembros)
 
@@ -398,6 +400,14 @@ Los investigadores quieren ayuda para razonar sobre experimentos sin reemplazar 
 ## Video
 
 - https://youtu.be/ZDDyDTGqaWM
+
+## Diapositiva
+
+- https://docs.google.com/presentation/d/1F0olVGtwIDrtU4Wk9jIRkzeHLLBkUeV7/edit?slide=id.p1#slide=id.p1
+
+## Drive
+
+- https://drive.google.com/drive/folders/1v2USVFUtCOPyRQ4sm--V0ddUeQsdW8Ca?usp=drive_link
 
 ## Miembros
 
