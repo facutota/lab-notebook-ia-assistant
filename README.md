@@ -13,10 +13,11 @@
 - [Planteo del problema](#planteo-del-problema)
 - [Proyecto](#proyecto)
     -  [Desafio](#desafio)
+    -  [Plataforma ALMA](#plataforma-alma)
     -  [Repositorio](#repositorio)
+    -  [Video](#video)
     -  [Diapositiva](#diapositiva)
     -  [Drive](#drive)
-    -  [Video](#video)
     -  [Miembros](#miembros)
 
 <!-- - [Tecnologías usadas](#tecnologías-usadas)
@@ -392,6 +393,16 @@ En nuestra arquitectura Azure Static Web App se comunica de forma segura con la 
 El desafio que hemos elegido es Lab Notebook AI Assistant, su escenario:
 
 Los investigadores quieren ayuda para razonar sobre experimentos sin reemplazar el juicio científico. Desarrolle un asistente de cuaderno de laboratorio basado en agentes que interprete protocolos experimentales, sugiera variaciones para los siguientes pasos y analice resultados a partir de texto, archivos CSV o imágenes, explicando claramente por qué se hacen las recomendaciones. El sistema debe aplicar límites de seguridad estrictos (especialmente en dominios biológicos o clínicos), aplicar filtrado de contenido y evitar comportamientos de asesoramiento no permitidos. Los equipos deben centrarse en la explicabilidad, el diseño seguro de agentes y una orquestación sólida de datos y modelos.
+
+## Plataforma ALMA
+
+- https://purple-ocean-059de6e0f.1.azurestaticapps.net/
+
+  - Usuarario de prueba
+
+    - **Usuario** : admin@demo.com	 **Contraseña** : 1a2b3c
+
+    - **Usuario**: investigador@demo.com	**Contraseña**: 1a2b3c
 
 ## Repositorio 
 
