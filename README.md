@@ -85,7 +85,6 @@ El sistema se desarrollo íntegramente sobre el ecosistema de Microsoft Azure, e
 | Busqueda vectorial | Azure AI Search | Este servicio permite al sistema gestionar la busqueda, los documentos cientificos que fueron almacendos en el blob storage.|
 | LLM | Azure Open AI | Se optado por utilizar el modelo de GTP-4 para la creaciones de agentes.|
 | Gestion de Agentes | Azure Agent AI | Los agente creados sobre el modelo de gpt disponene de tareas especificas,|
-
 | Uso resonsable de la AI | Azure Content Sefety | Permite validar el texto, y evitar proporcionar informacion prohibidas |
 
 La arquitectura de la plataforma Alma ha sido diseñada e implementada utilizando Azure Resource Group como herramienta fundamental para la gestión y administración centralizada de todos los servicios que la componen. A continuación, se describen los servicios aprovisionados y su rol dentro de la plataforma:
