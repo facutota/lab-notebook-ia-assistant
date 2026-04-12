@@ -1,7 +1,7 @@
 export type ExperimentStatus = "active" | "completed" | "failed" | "pending"
 
 export interface Experiment {
-  id: number
+  id: string
   name: string
   status: ExperimentStatus
   date: string
@@ -9,8 +9,13 @@ export interface Experiment {
   description: string
 }
 
-export interface Project {
+export interface ExperimentCategory {
   id: number
+  name: string
+}
+
+export interface Project {
+  id: string
   name: string
   lead: string
   status: ExperimentStatus
@@ -43,7 +48,7 @@ export interface DashboardStat {
 }
 
 export interface ActivityItem {
-  id: number
+  id: string
   title: string
   subtitle: string
   action: string
@@ -64,4 +69,10 @@ export interface NewProjectInput {
   description: string
   domain: string
   tags: string[]
+}
+
+export interface NewExperimentInput {
+  name: string
+  description: string
+  categoryId: number
 }

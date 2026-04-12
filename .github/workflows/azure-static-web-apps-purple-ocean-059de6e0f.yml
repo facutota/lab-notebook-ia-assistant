@@ -14,6 +14,12 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.action != 'closed'
     runs-on: ubuntu-latest
     name: Validate Pull Request Job
+    env:
+      NEXT_PUBLIC_ALMA_API_URL: ${{ vars.NEXT_PUBLIC_ALMA_API_URL }}
+      NEXT_PUBLIC_DOMAIN_API_URL: ${{ vars.NEXT_PUBLIC_DOMAIN_API_URL }}
+      NEXT_PUBLIC_ENTRA_CLIENT_ID: ${{ vars.NEXT_PUBLIC_ENTRA_CLIENT_ID }}
+      NEXT_PUBLIC_ENTRA_TENANT_ID: ${{ vars.NEXT_PUBLIC_ENTRA_TENANT_ID }}
+      NEXT_PUBLIC_ENTRA_REDIRECT_URI: ${{ vars.NEXT_PUBLIC_ENTRA_REDIRECT_URI }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,6 +41,12 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    env:
+      NEXT_PUBLIC_ALMA_API_URL: ${{ vars.NEXT_PUBLIC_ALMA_API_URL }}
+      NEXT_PUBLIC_DOMAIN_API_URL: ${{ vars.NEXT_PUBLIC_DOMAIN_API_URL }}
+      NEXT_PUBLIC_ENTRA_CLIENT_ID: ${{ vars.NEXT_PUBLIC_ENTRA_CLIENT_ID }}
+      NEXT_PUBLIC_ENTRA_TENANT_ID: ${{ vars.NEXT_PUBLIC_ENTRA_TENANT_ID }}
+      NEXT_PUBLIC_ENTRA_REDIRECT_URI: ${{ vars.NEXT_PUBLIC_ENTRA_REDIRECT_URI }}
     steps:
       - uses: actions/checkout@v3
         with:
